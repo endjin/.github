@@ -1,0 +1,7 @@
+{
+    "name": "Autosquash PR Workflow",
+    "description": "A workflow template that can auto-merge PRs labelled with 'autosquash'",
+    "iconName": "endjin",
+    "categories": [],
+    "filePatterns": []
+}

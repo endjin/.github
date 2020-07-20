@@ -1,0 +1,7 @@
+{
+    "name": "Dependabot Auto-Approve and Label Workflow",
+    "description": "A workflow template that auto-approves Dependabot PRs and labels them for use with autosquash",
+    "iconName": "endjin",
+    "categories": [],
+    "filePatterns": []
+}
