@@ -3,11 +3,11 @@ on:
   pull_request:
     types: [opened, reopened]
     
-  env:
-    # Customise this variable to choose which dependencies can be auto-merged
-    AUTO_MERGE_PACKAGE_FILTER: |
-      ["Endjin.*","Corvus.*","Menes.*","Marain.*"]
-    
+env:
+  # Customise this variable to choose which dependencies can be auto-merged
+  AUTO_MERGE_PACKAGE_FILTER: |
+    ["Endjin.*","Corvus.*"]
+
 jobs:
   evaluate_dependabot_pr:
     runs-on: ubuntu-latest
@@ -23,10 +23,10 @@ jobs:
       - uses: actions/checkout@v2
       - name: Parse Dependabot PR title
         id: parse_dependabot_pr
-        uses: endjin/dependabot-pr-parser@v1
+        uses: endjin/dependabot-pr-parser@v2
         with:
           pr_title: ${{ github.event.pull_request.title }}
-          package_filter_as_json_array: ${{ env.AUTO_MERGE_PACKAGE_FILTER }}
+          package_filter: ${{ env.AUTO_MERGE_PACKAGE_FILTER }}
       - name: debug
         run: |
           echo "dependency_name : ${{ steps.parse_dependabot_pr.outputs.dependency_name }}"
