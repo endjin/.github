@@ -1,0 +1,7 @@
+{
+    "name": "Manual Release WorkflowAutosquash PR Workflow",
+    "description": "A workflow template that performs the GitVersion-managed tagging required for Endjin's standard release process - intended to be triggered manually for non-automated releases (e.g. for major version increment).",
+    "iconName": "endjin",
+    "categories": [],
+    "filePatterns": []
+}

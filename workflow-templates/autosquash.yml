@@ -13,6 +13,7 @@ on:
       # Adding the autosquash label to a pull request can
       # trigger an update or a merge.
       - labeled
+      - synchronize
   pull_request_review:
     types:
       # Review approvals can unblock the pull request and
@@ -31,8 +32,8 @@ jobs:
         id: generate_token
         uses: tibdex/github-app-token@v1
         with:
-          app_id: ${{ secrets.APP_ID }}
-          private_key: ${{ secrets.PRIVATE_KEY }}
-      - uses: tibdex/autosquash@v2
+          ENDJIN_BOT_APP_ID: ${{ secrets.ENDJIN_BOT_APP_ID }}
+          ENDJIN_BOT_PRIVATE_KEY: ${{ secrets.ENDJIN_BOT_PRIVATE_KEY }}
+      - uses: endjin/autosquash@v2.2
         with:
           github_token: '${{ steps.generate_token.outputs.token }}'
