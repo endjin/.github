@@ -1,0 +1,7 @@
+{
+    "name": "Publish Image to PowerShell Gallery",
+    "description": "A workflow template that performs the GitVersion-managed packaging/publishing required for Endjin's standard PowerShell Gallery release process.",
+    "iconName": "endjin",
+    "categories": [],
+    "filePatterns": []
+}

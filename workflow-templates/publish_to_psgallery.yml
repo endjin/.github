@@ -1,0 +1,59 @@
+name: publish_to_psgallery
+on:
+- push
+- workflow_dispatch
+
+jobs:
+  run_gitversion:
+    runs-on: ubuntu-latest
+    name: Run GitVersion
+    # only trigger for pushed tags
+    if: |
+      startsWith(github.event.ref, 'refs/tags/')
+    outputs:
+      majorMinorPatch: ${{ steps.run_gitversion.outputs.MajorMinorPatch }}
+      nuGetPreReleaseTag: ${{ steps.run_gitversion.outputs.NuGetPreReleaseTag }}
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.x'
+    - name: Install GitVersion
+      run: |
+        dotnet tool install -g GitVersion.Tool --version 5.2.4
+        echo "::add-path::/github/home/.dotnet/tools"    
+    - name: Run GitVersion
+      id: run_gitversion
+      run: |
+        pwsh -noprofile -c '(dotnet-gitversion | ConvertFrom-Json).psobject.properties | % { echo ("::set-output name={0}::{1}" -f $_.name, $_.value) }'
+
+  publish_to_psgallery:
+    runs-on: ubuntu-latest
+    name: Publish to PowerShell Gallery
+    needs: run_gitversion
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Read workflow configuration
+      id: get_config
+      run: |
+        config=`cat .workflow-config.json`
+        echo "::set-output name=configJson::$config"
+        MODULE_MANIFEST_PATH=`echo $(jq -r .module_manifest_path <<< $config)`
+        echo "::set-output name=module_manifest_path::$MODULE_MANIFEST_PATH"
+  
+    - run: |
+        Update-ModuleManifest -Path ${{ steps.get_config.outputs.module_manifest_path }} `
+                              -ModuleVersion ${{ needs.run_gitversion.outputs.majorMinorPatch }} `
+                              -Prerelease "${{ needs.run_gitversion.outputs.nuGetPreReleaseTag }}" `
+                              -FunctionsToExport @("*") `
+                              -CmdletsToExport @() `
+                              -AliasesToExport @()
+        Publish-Module -Name ${{ steps.get_config.outputs.module_manifest_path }} `
+                              -NuGetApiKey ${{ secrets.ENDJIN_PSGALLERY_APIKEY }} `
+                              -AllowPrerelease `
+                              -Verbose
+      shell: pwsh
+      name: Publish module
