@@ -45,6 +45,10 @@ jobs:
         echo "::set-output name=module_manifest_path::$MODULE_MANIFEST_PATH"
   
     - run: |
+        # Ensure any required modules are installed
+        $manifest = Get-Content -Raw ${{ steps.get_config.outputs.module_manifest_path }} | Invoke-Expression
+        $manifest.RequiredModules | Where-Object { $_ } | ForEach-Object { Install-Module -Name $_ -Scope CurrentUser -Force }
+
         Update-ModuleManifest -Path ${{ steps.get_config.outputs.module_manifest_path }} `
                               -ModuleVersion ${{ needs.run_gitversion.outputs.majorMinorPatch }} `
                               -Prerelease "${{ needs.run_gitversion.outputs.nuGetPreReleaseTag }}" `
