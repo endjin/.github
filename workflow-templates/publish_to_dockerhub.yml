@@ -43,8 +43,8 @@ jobs:
       run: |
         config=`cat .workflow-config.json`
         echo "::set-output name=configJson::$config"
-        MODULE_MANIFEST_PATH=`echo $(jq -r .module_manifest_path <<< $config)`
-        echo "::set-output name=module_manifest_path::$MODULE_MANIFEST_PATH"
+        MODULE_MANIFEST_PATH=`echo $(jq -r .docker_repository <<< $config)`
+        echo "::set-output name=docker_repository::$MODULE_MANIFEST_PATH"
 
     - name: Push to Docker Hub
       uses: docker/build-push-action@v1
