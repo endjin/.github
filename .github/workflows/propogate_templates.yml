@@ -1,0 +1,25 @@
+name: propogate_templates
+on: 
+  push:
+    branches:
+    - master
+
+env:
+  ORGS: menes-dotnet,corvus-dotnet
+
+jobs:
+  sync_templates_to_orgs:
+    # only run in the source organisation
+    if: |
+      github.repository_owner == 'endjin'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        depth: 0
+    - run: |
+        $orgs = "${{ env.ORGS -split ',' }}"
+        ./sync-repo-to-orgs.ps1 -Organisations $orgs
+      shell: pwsh
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.ENDJIN_BOT_PRIVATE_KEY }}
