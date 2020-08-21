@@ -3,6 +3,7 @@ on:
   push:
     branches:
     - master
+  workflow_dispatch:
 
 env:
   ORGS: menes-dotnet,corvus-dotnet
