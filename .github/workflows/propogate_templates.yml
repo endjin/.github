@@ -17,10 +17,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        depth: 0
+        fetch-depth: 0
     - run: |
         $orgs = "${{ env.ORGS }}" -split ','
-        ./sync-repo-to-orgs.ps1 -Organisations $orgs -whatif
+        ./sync-repo-to-orgs.ps1 -Organisations $orgs
       shell: pwsh
       env:
         SSH_PRIVATE_KEY: ${{ secrets.ENDJIN_BOT_PRIVATE_KEY }}
