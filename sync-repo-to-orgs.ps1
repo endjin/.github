@@ -14,7 +14,7 @@ try {
         $repoUrl = "git@github.com:{0}/.github.git" -f $org
 
         Write-Host "`nProcessing: $repoUrl"
-        if ($PSCmdlet.ShouldProcess($Organisations)) {
+        if ($PSCmdlet.ShouldProcess($org)) {
             git remote add target $repoUrl
             if ($LASTEXITCODE -ne 0) { throw "Error configuring remote for '$org' - check logs" }
 
