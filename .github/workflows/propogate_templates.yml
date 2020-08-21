@@ -19,8 +19,20 @@ jobs:
       with:
         fetch-depth: 0
     - run: |
-        $orgs = "${{ env.ORGS }}" -split ','
-        ./sync-repo-to-orgs.ps1 -Organisations $orgs
-      shell: pwsh
+        mkdir -p ~/.ssh
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+      shell: bash
       env:
         SSH_PRIVATE_KEY: ${{ secrets.ENDJIN_BOT_PRIVATE_KEY }}
+    - run: |
+        echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa
+        $orgs = "${{ env.ORGS }}" -split ','
+        try {
+          ./sync-repo-to-orgs.ps1 -Organisations $orgs
+        }
+        finally {
+          rm ~/.ssh/id_rsa
+        }
+      shell: pwsh
+      
