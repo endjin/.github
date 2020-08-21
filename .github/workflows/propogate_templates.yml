@@ -19,8 +19,8 @@ jobs:
       with:
         depth: 0
     - run: |
-        $orgs = "${{ env.ORGS -split ',' }}"
-        ./sync-repo-to-orgs.ps1 -Organisations $orgs
+        $orgs = "${{ env.ORGS }}" -split ','
+        ./sync-repo-to-orgs.ps1 -Organisations $orgs -whatif
       shell: pwsh
       env:
         SSH_PRIVATE_KEY: ${{ secrets.ENDJIN_BOT_PRIVATE_KEY }}
