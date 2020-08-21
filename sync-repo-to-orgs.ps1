@@ -1,4 +1,4 @@
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess)]
 param (
     [Parameter(Mandatory=$true)]
     [string[]]
@@ -14,16 +14,21 @@ try {
         $repoUrl = "git@github.com:{0}/.github.git" -f $org
 
         Write-Host "`nProcessing: $repoUrl"
-        git remote add target $repoUrl
-        if ($LASTEXITCODE -ne 0) { throw "Error configuring remote for '$org' - check logs" }
+        if ($PSCmdlet.ShouldProcess($Organisations)) {
+            git remote add target $repoUrl
+            if ($LASTEXITCODE -ne 0) { throw "Error configuring remote for '$org' - check logs" }
 
-        try {
-            Write-Host " --> Syncing"
-            git push -f target master
-            if ($LASTEXITCODE -ne 0) { throw "Error pushing to remote for '$org' - check logs" }
+            try {
+                Write-Host " --> Syncing"
+                git push -f target master
+                if ($LASTEXITCODE -ne 0) { throw "Error pushing to remote for '$org' - check logs" }
+            }
+            finally {
+                git remote remove target
+            }
         }
-        finally {
-            git remote remove target
+        else {
+            Write-Host " --> Would have synced"
         }
     }
 }
