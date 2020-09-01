@@ -84,7 +84,7 @@ jobs:
 
     - name: Read pr-autoflow configuration
       id: get_pr_autoflow_config
-      uses: endjin/pr-autoflow/actions/read-config@v1
+      uses: endjin/pr-autoflow/actions/read-configuration@v1
       with:
         config_file: .github/config/pr-autoflow.json
 
