@@ -1,8 +1,8 @@
 {
     "repos": [
         {
-            "org": "menes-dotnet",
-            "name": "Menes",
+            "org": "endjin",
+            "name": "dependency-playground",
             "settings": {
                 "AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Endjin.*\", \"Corvus.*\"]",
                 "AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Corvus.*\"]"
