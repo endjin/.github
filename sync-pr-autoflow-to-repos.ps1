@@ -44,7 +44,7 @@ $config.repos | ForEach-Object {
 
             $tags = git tag
 
-            $mostRecentSemVerTag = ($tags | ForEach-Object { 
+            $semVers = $tags | ForEach-Object { 
                 try { 
                     [System.Management.Automation.SemanticVersion]::new($_) 
                 } 
@@ -53,9 +53,15 @@ $config.repos | ForEach-Object {
                 }
             } | Where-Object {
                 ($_ -ne $Null) -and (!$_.PreReleaseLabel)
-            } | Sort-Object -Descending)[0]
+            }
 
-            $majorMinor = "$($mostRecentSemVerTag.Major).$($mostRecentSemVerTag.Minor)"
+            if ($semVers) {
+                $mostRecentSemVerTag = ($semVers | Sort-Object -Descending)[0]
+                $majorMinor = "$($mostRecentSemVerTag.Major).$($mostRecentSemVerTag.Minor)"
+            }
+            else {
+                $majorMinor = "0.1"
+            }
 
             Write-Host "Setting next-version as $majorMinor"
 
