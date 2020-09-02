@@ -1,30 +1,18 @@
-# read config json
-
-# iterate repos
-    # create temp folder
-    # clone repo to temp folder
-    # create feature branch
-    # add/overwrite `dependabot_approve_and_label.yml`, `auto_merge.yml`, and `auto_release.yml` workflows in .github/workflows folder
-    # (optional) add/overwrite `pr-autoflow.json` configuration in .github/config
-    # commit and push changes (unless WhatIf = true)
-    # open a PR to master (unless WhatIf = true)
-    # delete temp folder
+#Requires -Modules @{ ModuleName="powershell-yaml"; ModuleVersion="0.4.2" }
 
 param (
     [string] $ConfigFilePath,
     [string] $BranchName = "feature/pr-autoflow",
     [switch] $AddOverwriteSettings,
+    [switch] $ConfigureGitVersion,
+    [switch] $ConfigureDependabotV2,
     [switch] $WhatIf
 )
 
-function New-TemporaryDirectory {
-    $parent = [System.IO.Path]::GetTempPath()
-    [string] $name = [System.Guid]::NewGuid()
-    New-Item -ItemType Directory -Path (Join-Path $parent $name)
-}
-
 $here = Split-Path -Parent $PSCommandPath
 Write-Host "Here: $here"
+
+. (Join-Path $here functions.ps1)
 
 $config = Get-Content -Raw -Path $ConfigFilePath | ConvertFrom-Json
 
@@ -33,49 +21,85 @@ $config.repos | ForEach-Object {
 
     Write-Host "`nOrg: $($repo.org) - Repo: $($repo.name)`n"
 
-    $tempDir = New-TemporaryDirectory
+    $repoChanges = {
+        Write-Host "Adding/overwriting workflow files"
+        $workflowsFolder = ".github/workflows"
+        if (!(Test-Path $workflowsFolder)) {
+            New-Item $workflowsFolder -Force -ItemType Directory
+        }
+    
+        @("auto_merge.yml", "auto_release.yml", "dependabot_approve_and_label.yml") | ForEach-Object {
+            $src = Join-Path $here "workflow-templates" $_
+            $dest = Join-Path $workflowsFolder $_
+            Copy-Item $src $dest -Force
+        }
+    
+        if ($AddOverwriteSettings) {
+            Write-Host "Adding/overwriting pr-autoflow.json settings"
+            ConvertTo-Json $repo.settings | Out-File (New-Item ".github/config/pr-autoflow.json" -Force)
+        }
 
-    Push-Location $tempDir.FullName
+        if ($ConfigureGitVersion) {
+            Write-Host "Adding/overwriting GitVersion.yml"
 
-    Write-Host "Created temporary directory: $($tempDir.FullName)"
+            $tags = git tag
 
-    $repoUrl = "https://github.com/$($repo.org)/$($repo.name).git"
-    Write-Host "Cloning: $repoUrl"
-    git clone $repoUrl
+            $mostRecentSemVerTag = ($tags | ForEach-Object { 
+                try { 
+                    [System.Management.Automation.SemanticVersion]::new($_) 
+                } 
+                catch { 
+                    $Null
+                }
+            } | Where-Object {
+                ($_ -ne $Null) -and (!$_.PreReleaseLabel)
+            } | Sort-Object -Descending)[0]
 
-    Set-Location $repo.name
+            $majorMinor = "$($mostRecentSemVerTag.Major).$($mostRecentSemVerTag.Minor)"
 
-    Write-Host "Creating new branch: $BranchName"
-    git checkout -b $BranchName
+            Write-Host "Setting next-version as $majorMinor"
 
-    Write-Host "Adding/overwriting workflow files"
-    $workflowsFolder = ".github/workflows"
-    if (!(Test-Path $workflowsFolder)) {
-        New-Item $workflowsFolder -Force -ItemType Directory
+            $gitVersionConfig = @{
+                mode = "ContinuousDeployment";
+                branches = @{
+                    master = @{
+                        tag = "preview";
+                        increment = "patch";
+                    }
+                };
+                "next-version" = $majorMinor
+            }
+
+            ConvertTo-YAML $gitVersionConfig | Out-File (New-Item "GitVersion.yml" -Force)
+        }
+
+        if ($ConfigureDependabotV2) {
+            Write-Host "Adding/overwriting dependabot.yml"
+
+            $dependabotConfig = @{
+                version = 2;
+                updates = @(
+                    @{ 
+                        "package-ecosystem" = "nuget";
+                        directory = "/Solutions";
+                        schedule = @{
+                            interval = "daily"
+                        };
+                        "open-pull-requests-limit" = 10
+                    }
+                );
+               
+            }
+
+            ConvertTo-YAML $dependabotConfig | Out-File (New-Item ".github/dependabot.yml" -Force)
+        }
     }
 
-    @("auto_merge.yml", "auto_release.yml", "dependabot_approve_and_label.yml") | ForEach-Object {
-        $src = Join-Path $here "workflow-templates" $_
-        $dest = Join-Path $workflowsFolder $_
-        Copy-Item $src $dest -Force
-    }
-
-    if ($AddOverwriteSettings) {
-        Write-Host "Adding/overwriting pr-autoflow.json settings"
-        ConvertTo-Json $repo.settings | Out-File (New-Item ".github/config/pr-autoflow.json" -Force)
-    }
-
-    if (!$WhatIf) {
-        Write-Host "Committing changes"
-        git add .
-        git commit -m "Adding/updating pr-autoflow"
-
-        Write-Host "Opening new PR"
-        gh pr create --title "Adding/updating pr-autoflow" --body "Syncing latest version of pr-autoflow$($AddOverwriteSettings ? ' and default config' : '')"
-    }
-
-    Pop-Location
-
-    "Deleting temporary directory: $($tempDir.FullName)"
-    Remove-Item $tempDir -Recurse -Force
+    Update-Repo `
+        -RepoUrl "https://github.com/$($repo.org)/$($repo.name).git" `
+        -RepoChanges $repoChanges `
+        -WhatIf:$WhatIf `
+        -CommitMessage "Committing changes" `
+        -PrTitle "Adding/updating pr-autoflow" `
+        -PrBody "Syncing latest version of pr-autoflow$($AddOverwriteSettings ? ' and default config' : '')"
 }
