@@ -124,64 +124,64 @@
             "org": "marain-dotnet",
             "name": "Marain.TenantManagement",
             "settings": {
-                "AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Endjin.*\", \"Corvus.*\", \"Menes\"]",
-                "AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Corvus.*\", \"Menes\"]"
+                "AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Endjin.*\", \"Corvus.*\", \"Menes.*\"]",
+                "AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Corvus.*\", \"Menes.*\"]"
             }
         },
         {
             "org": "marain-dotnet",
             "name": "Marain.Workflow",
             "settings": {
-                "AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Endjin.*\", \"Corvus.*\", \"Menes\"]",
-                "AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Corvus.*\", \"Menes\"]"
+                "AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Endjin.*\", \"Corvus.*\", \"Menes.*\"]",
+                "AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Corvus.*\", \"Menes.*\"]"
             }
         },
         {
             "org": "marain-dotnet",
             "name": "Marain.ContentManagement",
             "settings": {
-                "AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Endjin.*\", \"Corvus.*\", \"Menes\"]",
-                "AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Corvus.*\", \"Menes\"]"
+                "AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Endjin.*\", \"Corvus.*\", \"Menes.*\"]",
+                "AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Corvus.*\", \"Menes.*\"]"
             }
         },
         {
             "org": "marain-dotnet",
             "name": "Marain.Claims",
             "settings": {
-                "AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Endjin.*\", \"Corvus.*\", \"Menes\"]",
-                "AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Corvus.*\", \"Menes\"]"
+                "AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Endjin.*\", \"Corvus.*\", \"Menes.*\"]",
+                "AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Corvus.*\", \"Menes.*\"]"
             }
         },
         {
             "org": "marain-dotnet",
             "name": "Marain.Operations",
             "settings": {
-                "AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Endjin.*\", \"Corvus.*\", \"Menes\"]",
-                "AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Corvus.*\", \"Menes\"]"
+                "AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Endjin.*\", \"Corvus.*\", \"Menes.*\"]",
+                "AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Corvus.*\", \"Menes.*\"]"
             }
         },
         {
             "org": "marain-dotnet",
             "name": "Marain.UserNotifications",
             "settings": {
-                "AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Endjin.*\", \"Corvus.*\", \"Menes\"]",
-                "AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Corvus.*\", \"Menes\"]"
+                "AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Endjin.*\", \"Corvus.*\", \"Menes.*\"]",
+                "AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Corvus.*\", \"Menes.*\"]"
             }
         },
         {
             "org": "marain-dotnet",
             "name": "Marain.KeyRotation",
             "settings": {
-                "AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Endjin.*\", \"Corvus.*\", \"Menes\"]",
-                "AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Corvus.*\", \"Menes\"]"
+                "AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Endjin.*\", \"Corvus.*\", \"Menes.*\"]",
+                "AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Corvus.*\", \"Menes.*\"]"
             }
         },
         {
             "org": "marain-dotnet",
             "name": "Marain.Tenancy",
             "settings": {
-                "AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Endjin.*\", \"Corvus.*\", \"Menes\"]",
-                "AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Corvus.*\", \"Menes\"]"
+                "AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Endjin.*\", \"Corvus.*\", \"Menes.*\"]",
+                "AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Corvus.*\", \"Menes.*\"]"
             }
         }
     ]
