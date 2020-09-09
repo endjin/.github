@@ -11,7 +11,8 @@ function Update-Repo {
         [switch] $WhatIf,
         [string] $CommitMessage,
         [string] $PrTitle,
-        [string] $PrBody = " "
+        [string] $PrBody = " ",
+        [string] $PrLabels
     )
 
     $tempDir = New-TemporaryDirectory
@@ -34,7 +35,9 @@ function Update-Repo {
         git commit -m $CommitMessage
 
         Write-Host "Opening new PR"
-        gh pr create --title $PrTitle --body $PrBody
+        $ghPrArgs = @("pr", "create", "--title", $PrTitle, "--body", $PrBody)
+        if ($PrLabels) { $ghPrArgs += @("--label", $PrLabels) }
+        gh @ghPrArgs
     }
 
     Pop-Location

@@ -6,7 +6,9 @@ param (
     [switch] $AddOverwriteSettings,
     [switch] $ConfigureGitVersion,
     [switch] $ConfigureDependabotV2,
-    [switch] $WhatIf
+    [switch] $WhatIf,
+    [string] $PrTitle = "Adding/updating pr-autoflow",
+    [string] $PrBody = "Syncing latest version of pr-autoflow"
 )
 
 $here = Split-Path -Parent $PSCommandPath
@@ -106,6 +108,7 @@ $config.repos | ForEach-Object {
         -RepoChanges $repoChanges `
         -WhatIf:$WhatIf `
         -CommitMessage "Committing changes" `
-        -PrTitle "Adding/updating pr-autoflow" `
-        -PrBody "Syncing latest version of pr-autoflow$($AddOverwriteSettings ? ' and default config' : '')"
+        -PrTitle $PrTitle `
+        -PrBody $PrBody `
+        -PrLabels "no_release"
 }
