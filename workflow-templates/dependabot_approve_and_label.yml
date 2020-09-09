@@ -78,8 +78,6 @@ jobs:
         if: |
           needs.evaluate_dependabot_pr.outputs.is_auto_merge_candidate == 'True' &&
           (needs.evaluate_dependabot_pr.outputs.semver_increment == 'minor' || needs.evaluate_dependabot_pr.outputs.semver_increment == 'patch')
-        env: 
-          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
         uses: actions/github-script@v2
         with:
           github-token: '${{ steps.generate_token.outputs.token }}'
@@ -96,13 +94,17 @@ jobs:
     needs: evaluate_dependabot_pr
     name: Label
     steps:
+      - name: Generate token
+        id: generate_token
+        uses: tibdex/github-app-token@v1
+        with:
+          app_id: ${{ secrets.ENDJIN_BOT_APP_ID }}
+          private_key: ${{ secrets.ENDJIN_BOT_PRIVATE_KEY }}
       - name: 'Label with "autosquash"'
         if: |
           (github.actor == 'dependabot[bot]' || github.actor == 'nektos/act') &&
           needs.evaluate_dependabot_pr.outputs.is_auto_merge_candidate == 'True' &&
           (needs.evaluate_dependabot_pr.outputs.semver_increment == 'minor' || needs.evaluate_dependabot_pr.outputs.semver_increment == 'patch')
-        env: 
-          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
         uses: actions/github-script@v2
         with:
           github-token: '${{ steps.generate_token.outputs.token }}'
