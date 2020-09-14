@@ -14,7 +14,7 @@ param (
 $here = Split-Path -Parent $PSCommandPath
 Write-Host "Here: $here"
 
-. (Join-Path $here functions.ps1)
+Import-Module $here/Endjin.CodeOps
 
 if (!$GitHubToken) {
     gh auth login
