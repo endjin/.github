@@ -14,7 +14,7 @@ param (
 $here = Split-Path -Parent $PSCommandPath
 Write-Host "Here: $here"
 
-. (Join-Path $here functions.ps1)
+Import-Module $here/Endjin.CodeOps
 
 $config = Get-Content -Raw -Path $ConfigFilePath | ConvertFrom-Json
 
