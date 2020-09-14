@@ -28,6 +28,9 @@ jobs:
       - name: Run sync-pr-autoflow-to-repos.ps1
         run: |
           Install-Module powershell-yaml -Force
+
+          git config --global user.email "dependjinbot@endjin.com"
+          git config --global user.name "dependjinbot"
           
           .\sync-pr-autoflow-to-repos.ps1 `
             -ConfigDirectory "repos/test" `
