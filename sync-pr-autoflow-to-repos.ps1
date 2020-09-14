@@ -1,14 +1,14 @@
 #Requires -Modules @{ ModuleName="powershell-yaml"; ModuleVersion="0.4.2" }
 
 param (
-    [string] $ConfigFilePath,
+    [string] $ConfigDirectory,
     [string] $BranchName = "feature/pr-autoflow",
     [switch] $AddOverwriteSettings,
     [switch] $ConfigureGitVersion,
     [switch] $ConfigureDependabotV2,
     [switch] $WhatIf,
-    [string] $PrTitle = "Adding/updating pr-autoflow",
-    [string] $PrBody = "Syncing latest version of pr-autoflow"
+    [string] $PrBody = "Syncing latest version of pr-autoflow",
+    [string] $GitHubToken
 )
 
 $here = Split-Path -Parent $PSCommandPath
@@ -16,9 +16,17 @@ Write-Host "Here: $here"
 
 . (Join-Path $here functions.ps1)
 
-$config = Get-Content -Raw -Path $ConfigFilePath | ConvertFrom-Json
+if (!$GitHubToken) {
+    gh auth login
+    $ghConfig = Get-Content ~/.config/gh/hosts.yml -Raw | ConvertFrom-Yaml
+    $GitHubToken = $ghConfig."github.com".oauth_token
+}
 
-$config.repos | ForEach-Object {
+$repos = Get-Repos $ConfigDirectory
+
+Write-Host "Repo count: " $repos.Count
+
+$repos | ForEach-Object {
     $repo = $_
 
     Write-Host "`nOrg: $($repo.org) - Repo: $($repo.name)`n"
@@ -38,7 +46,14 @@ $config.repos | ForEach-Object {
     
         if ($AddOverwriteSettings) {
             Write-Host "Adding/overwriting pr-autoflow.json settings"
-            ConvertTo-Json $repo.settings | Out-File (New-Item ".github/config/pr-autoflow.json" -Force)
+
+            $settings = @{}
+
+            $repo.prAutoflowSettings.Keys | ForEach-Object {
+                $settings[$_] = @(,$repo.prAutoflowSettings[$_]) | ConvertTo-Json -Compress
+            }
+
+            ConvertTo-Json $settings | Out-File (New-Item ".github/config/pr-autoflow.json" -Force)
         }
 
         if ($ConfigureGitVersion) {
@@ -103,12 +118,17 @@ $config.repos | ForEach-Object {
         }
     }
 
+    $prLabels = @("no_release")
+
+    $prTitle = "Bump Endjin.PRAutoflow from 1.0.0 to 1.0.1 in .github/workflows"
+
     Update-Repo `
         -RepoUrl "https://github.com/$($repo.org)/$($repo.name).git" `
         -RepoChanges $repoChanges `
         -WhatIf:$WhatIf `
         -CommitMessage "Committing changes" `
-        -PrTitle $PrTitle `
+        -PrTitle $prTitle `
         -PrBody $PrBody `
-        -PrLabels "no_release"
+        -PrLabels $prLabels `
+        -GitHubToken $GitHubToken
 }

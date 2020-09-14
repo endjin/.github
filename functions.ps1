@@ -12,7 +12,8 @@ function Update-Repo {
         [string] $CommitMessage,
         [string] $PrTitle,
         [string] $PrBody = " ",
-        [string] $PrLabels
+        [string[]] $PrLabels,
+        [string] $GitHubToken
     )
 
     $tempDir = New-TemporaryDirectory
@@ -36,7 +37,10 @@ function Update-Repo {
 
         Write-Host "Opening new PR"
         $ghPrArgs = @("pr", "create", "--title", $PrTitle, "--body", $PrBody)
-        if ($PrLabels) { $ghPrArgs += @("--label", $PrLabels) }
+        if ($PrLabels) { $ghPrArgs += @("--label", ($PrLabels -join ",")) }
+
+        Write-Output $GitHubToken | gh auth login --with-token
+
         gh @ghPrArgs
     }
 
@@ -44,4 +48,18 @@ function Update-Repo {
 
     "Deleting temporary directory: $($tempDir.FullName)"
     Remove-Item $tempDir -Recurse -Force
+}
+
+function Get-Repos {
+    param (
+        [string] $ConfigDirectory
+    )
+
+    $repos = @()
+    Get-ChildItem $ConfigDirectory -Recurse -Filter *.yml | ForEach-Object {
+        $config = Get-Content -Raw -Path $_.FullName | ConvertFrom-Yaml
+        $repos += $config.repos
+    }
+
+    return $repos
 }

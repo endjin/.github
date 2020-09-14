@@ -1,0 +1,113 @@
+repos:
+  - org: corvus-dotnet
+    name: Corvus.AzureFunctionsKeepAlive
+    prAutoflowSettings:
+      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Endjin.*
+      - Corvus.*
+      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Corvus.*
+  - org: corvus-dotnet
+    name: Corvus.Testing
+    prAutoflowSettings:
+      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Endjin.*
+      - Corvus.*
+      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Corvus.*
+  - org: corvus-dotnet
+    name: Corvus.Extensions.System.Text.Json
+    prAutoflowSettings:
+      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Endjin.*
+      - Corvus.*
+      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Corvus.*
+  - org: corvus-dotnet
+    name: Corvus.Monitoring
+    prAutoflowSettings:
+      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Endjin.*
+      - Corvus.*
+      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Corvus.*
+  - org: corvus-dotnet
+    name: Corvus.Retry
+    prAutoflowSettings:
+      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Endjin.*
+      - Corvus.*
+      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Corvus.*
+  - org: corvus-dotnet
+    name: Corvus.Identity
+    prAutoflowSettings:
+      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Endjin.*
+      - Corvus.*
+      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Corvus.*
+  - org: corvus-dotnet
+    name: Corvus.Extensions.CosmosDb
+    prAutoflowSettings:
+      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Endjin.*
+      - Corvus.*
+      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Corvus.*
+  - org: corvus-dotnet
+    name: Corvus.Extensions.Newtonsoft.Json
+    prAutoflowSettings:
+      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Endjin.*
+      - Corvus.*
+      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Corvus.*
+  - org: corvus-dotnet
+    name: Corvus.Extensions
+    prAutoflowSettings:
+      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Endjin.*
+      - Corvus.*
+      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Corvus.*
+  - org: corvus-dotnet
+    name: Corvus.Leasing
+    prAutoflowSettings:
+      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Endjin.*
+      - Corvus.*
+      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Corvus.*
+  - org: corvus-dotnet
+    name: Corvus.Configuration
+    prAutoflowSettings:
+      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Endjin.*
+      - Corvus.*
+      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Corvus.*
+  - org: corvus-dotnet
+    name: Corvus.EventStore
+    prAutoflowSettings:
+      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Endjin.*
+      - Corvus.*
+      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Corvus.*
+  - org: corvus-dotnet
+    name: Corvus.DotLiquidAsync
+    prAutoflowSettings:
+      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Endjin.*
+      - Corvus.*
+      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Corvus.*
+  - org: corvus-dotnet
+    name: Corvus.Tenancy
+    prAutoflowSettings:
+      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Endjin.*
+      - Corvus.*
+      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Corvus.*
