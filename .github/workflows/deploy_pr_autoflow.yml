@@ -1,0 +1,27 @@
+name: deploy_pr_autoflow
+on: 
+  push:
+    branches:
+    - master
+  workflow_dispatch:
+
+jobs:
+  deploy_pr_autoflow:
+    runs-on: ubuntu-latest
+    name: Deploy PR Autoflow workflows to target repos
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Generate token
+        id: generate_token
+        uses: tibdex/github-app-token@v1
+        with:
+          app_id: ${{ secrets.DEPENDJINBOT_APP_ID }}
+          private_key: ${{ secrets.DEPENDJINBOT_PRIVATE_KEY }}
+      - name: Run sync-pr-autoflow-to-repos.ps1
+        run: >
+          .\sync-pr-autoflow-to-repos.ps1 
+            -ConfigDirectory "repos/test"
+            -GitHubToken ${{ steps.generate_token.outputs.token }}
+        shell: pwsh

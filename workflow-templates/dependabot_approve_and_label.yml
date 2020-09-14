@@ -45,7 +45,7 @@ jobs:
     needs: evaluate_dependabot_pr
     name: Approve auto-mergeable dependabot PRs
     if: |
-      (github.actor == 'dependabot[bot]' || github.actor == 'nektos/act') &&
+      (github.actor == 'dependabot[bot]' || github.actor == 'dependjinbot[bot]' || github.actor == 'nektos/act') &&
       needs.evaluate_dependabot_pr.outputs.is_auto_merge_candidate == 'True'
     steps:
       - name: Show PR Details
@@ -102,7 +102,7 @@ jobs:
           private_key: ${{ secrets.ENDJIN_BOT_PRIVATE_KEY }}
       - name: 'Label auto-mergeable dependabot PRs with "autosquash"'
         if: |
-          (github.actor == 'dependabot[bot]' || github.actor == 'nektos/act') &&
+          (github.actor == 'dependabot[bot]' || github.actor == 'dependjinbot[bot]' || github.actor == 'nektos/act') &&
           needs.evaluate_dependabot_pr.outputs.is_auto_merge_candidate == 'True' &&
           (needs.evaluate_dependabot_pr.outputs.semver_increment == 'minor' || needs.evaluate_dependabot_pr.outputs.semver_increment == 'patch')
         uses: actions/github-script@v2
@@ -117,7 +117,7 @@ jobs:
             })
       - name: 'Label non-dependabot PRs and auto-releasable dependabot PRs with "pending_release"'
         if: |
-          github.actor != 'dependabot[bot]' ||
+          (github.actor != 'dependabot[bot]' && github.actor != 'dependjinbot[bot]') ||
           needs.evaluate_dependabot_pr.outputs.is_auto_release_candidate == 'True'
         uses: actions/github-script@v2
         with:
