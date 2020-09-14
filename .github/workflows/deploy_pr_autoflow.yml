@@ -20,8 +20,10 @@ jobs:
           app_id: ${{ secrets.DEPENDJINBOT_APP_ID }}
           private_key: ${{ secrets.DEPENDJINBOT_PRIVATE_KEY }}
       - name: Run sync-pr-autoflow-to-repos.ps1
-        run: >
-          .\sync-pr-autoflow-to-repos.ps1 
-            -ConfigDirectory "repos/test"
+        run: |
+          Install-Module powershell-yaml -Force
+
+          .\sync-pr-autoflow-to-repos.ps1 `
+            -ConfigDirectory "repos/test" `
             -GitHubToken ${{ steps.generate_token.outputs.token }}
         shell: pwsh
