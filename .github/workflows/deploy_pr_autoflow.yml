@@ -19,10 +19,16 @@ jobs:
         with:
           app_id: ${{ secrets.DEPENDJINBOT_APP_ID }}
           private_key: ${{ secrets.DEPENDJINBOT_PRIVATE_KEY }}
+      - name: Install GH CLI
+        run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+          sudo apt-add-repository -u https://cli.github.com/packages
+          sudo apt install gh
+        shell: bash
       - name: Run sync-pr-autoflow-to-repos.ps1
         run: |
           Install-Module powershell-yaml -Force
-
+          
           .\sync-pr-autoflow-to-repos.ps1 `
             -ConfigDirectory "repos/test" `
             -GitHubToken ${{ steps.generate_token.outputs.token }}
