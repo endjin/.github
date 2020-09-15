@@ -116,6 +116,10 @@ $repos | ForEach-Object {
 
             ConvertTo-YAML $dependabotConfig | Out-File (New-Item ".github/dependabot.yml" -Force)
         }
+
+        # placeholder change to mimic existing behaviour whilst being compatible with the
+        # change whereby Update-Repo expects a change notification flag
+        return $true
     }
 
     $prLabels = @("no_release")
