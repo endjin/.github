@@ -53,6 +53,7 @@ Describe 'Remove-VsProjectPackageReference Tests' {
         $updatedProject = Remove-VsProjectPackageReference -Project $project `
                                                            -PackageId 'Corvus.Testing.SpecFlow' `
 
+        $updatedProject | Should -BeOfType [xml]
         $updatedProject.Project.ItemGroup.PackageReference.Include.Count | Should -be 9
         $updatedProject.Project.ItemGroup.ProjectReference.Include.Count | Should -be 2
     }

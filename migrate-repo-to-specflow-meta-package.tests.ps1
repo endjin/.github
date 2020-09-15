@@ -5,92 +5,102 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 Get-Module Endjin.CodeOps | Remove-Module -Force
 Import-Module $here/Endjin.CodeOps -Force
 
-# function _repoChanges
-# {
-#     $specsProjects = Get-ChildItem -Recurse -Filter *.Specs.csproj
+Describe 'Migrate Repo to SpecFlow Meta Package Tests' {
 
-#     # TODO: lookup the latest nuget versions for each $packageRefToAdd
-#     $newRefs = @{}
-#     $packageRefsToAdd | % {
-#         $newRefs.Add($_, '1.0.2')
-#     }
+    $upToDateProject = @'
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(EndjinProjectPropsPath)" Condition="$(EndjinProjectPropsPath) != ''" />
 
-#     foreach ($projectFile in $specsProjects) {
-#         $isUpdated = $false
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>Menes.Specs</RootNamespace>
+  </PropertyGroup>
 
-#         Write-Host "`nProcessing project: $projectFile"
-#         [xml]$project = Get-Content -Raw -Path $projectFile
-        
-#         $originalRefs = $project.Project.ItemGroup.PackageReference | % { @{PackageId=$_.Identity; Version=$_.Version} }
-#         Write-Verbose "Original Refs:`n$($originalRefs.PackageId -join [Environment]::NewLine)"
+  <ItemGroup>
+    <PackageReference Include="Corvus.Testing.SpecFlow.NUnit" Version="1.1.0" />
+    <PackageReference Include="Endjin.RecommendedPractices" Version="1.1.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Idg.AsyncTestTools" Version="1.0.0" />
+  </ItemGroup>
 
-#         foreach ($packageId in $packageRefsToRemove) {
-#             $project = Remove-VsProjectPackageRef -Project $project -PackageId $packageId
-#         }
+  <ItemGroup>
+    <ProjectReference Include="..\Menes.Abstractions\Menes.Abstractions.csproj" />
+    <ProjectReference Include="..\Menes.Hosting.AspNetCore\Menes.Hosting.AspNetCore.csproj" />
+  </ItemGroup>
 
-#         foreach ($packageId in $newRefs.Keys) {
-#             $project = Add-VsProjectPackageRef -Project $project -PacakgeId $packageId -Version $newRefs[$packageId]
-#         }
+</Project>
+'@
 
-#         $updatedRefs = $project.Project.ItemGroup.PackageReference | % { @{PackageId=$_.Identity; Version=$_.Version} }
+    $testProject = @'
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(EndjinProjectPropsPath)" Condition="$(EndjinProjectPropsPath) != ''" />
 
-#         if ($updatedRefs -ne $originalRefs) {
-#             Write-Verbose "Updated Refs:`n$($updatedRefs.PackageId -join [Environment]::NewLine)"
-#             Write-Host "Updating project: $projectFile"
-#             $sw = new-object System.IO.StreamWriter $projectFile
-#             try {
-#                 $sw.NewLine = "`n";
-#                 $project.Save($sw)
-#             }
-#             finally {
-#                 $sw.Dispose()
-#             }
-#         }
-#         else {
-#             Write-Host "Project up-to-date"
-#         }
-        
-#     }
-# }
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>Menes.Specs</RootNamespace>
+  </PropertyGroup>
 
-InModuleScope Endjin.CodeOps {
-    Describe 'Tests' {
+  <ItemGroup>
+    <PackageReference Include="Corvus.Testing.SpecFlow" Version="0.7.0" />
+    <PackageReference Include="Endjin.RecommendedPractices" Version="1.1.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="NUnit3TestAdapter" Version="3.16.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Moq" Version="4.14.4" />
+    <PackageReference Include="Idg.AsyncTestTools" Version="1.0.0" />
+    <PackageReference Include="SpecFlow.NUnit" Version="3.3.30" />
+    <PackageReference Include="SpecFlow.Tools.MsBuild.Generation" Version="3.3.30" />
+    <PackageReference Include="nunit" Version="3.12.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
+    <PackageReference Include="coverlet.msbuild" Version="2.9.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 
-        Context 'Simple' {
+  <ItemGroup>
+    <ProjectReference Include="..\Menes.Abstractions\Menes.Abstractions.csproj" />
+    <ProjectReference Include="..\Menes.Hosting.AspNetCore\Menes.Hosting.AspNetCore.csproj" />
+  </ItemGroup>
 
-            $packageRefsToRemove = @(
-                'SpecFlow'
-                'SpecFlow.NUnit'
-                'SpecFlow.Tools.MsBuild.Generation'
-                'coverlet.msbuild'
-                'Microsoft.NET.Test.Sdk'
-                'Moq'
-                'NUnit'
-                'NUnit3TestAdapter'
-            )
+</Project>
+'@
 
-            $packageRefsToAdd = @(
-                'Corvus.Testing.SpecFlow.NUnit'
-            )
+    Context 'Up-to-date project' {
+        $testProjectFile = Join-Path TestDrive: 'test-project.csproj'
+        Set-Content -Path $testProjectFile -Value $upToDateProject
 
-            Mock _getProjectFiles { 'C:\_DATA\code\corvus\Corvus.Retry' }
+        Mock _getProjectFiles { $testProjectFile }
+        Mock _saveProject {}
 
-            $mockRepoConfig = @{
-                repos = @(
-                    @{
-                        org = "corvus-dotnet"
-                        name = "Corvus.Testing"
-                    }
-                )
-            }
-            Mock Get-Repos { 
-                $mockRepoConfig
-            }
+        It 'should run successfully with no save operation' {
+            _repoChanges
 
-            It 'should run successfully' {
-                _main
-            }
+            Assert-MockCalled _saveProject -Times 0
+        }
+    }
 
+    Context 'Project requires migration' {
+        $testProjectFile = Join-Path TestDrive: 'test-project.csproj'
+        Set-Content -Path $testProjectFile -Value $testProject
+
+        Mock _getProjectFiles { $testProjectFile }
+        Mock _saveProject {}
+
+        It 'should run successfully with no save operation' {
+            _repoChanges
+
+            Assert-MockCalled _saveProject -Times 1
         }
     }
 }

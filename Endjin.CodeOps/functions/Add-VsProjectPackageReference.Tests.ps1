@@ -55,6 +55,7 @@ Describe 'Add-VsProjectPackageReference Tests' {
                                                         -PackageId 'Corvus.Testing.SpecFlow.NUnit' `
                                                         -PackageVersion '1.1.0'
 
+        $updatedProject | Should -BeOfType [xml]
         $updatedProject.Project.ItemGroup.PackageReference.Include.Count | Should -be 11
         $updatedProject.Project.ItemGroup.ProjectReference.Include.Count | Should -be 2
     }

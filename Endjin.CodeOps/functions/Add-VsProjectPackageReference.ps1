@@ -23,9 +23,9 @@ function Add-VsProjectPackageReference
         $versionAttr = $project.CreateAttribute('Version')
         $versionAttr.Value = $PackageVersion
 
-        $newRefNode.Attributes.Append($includeAttr)
-        $newRefNode.Attributes.Append($versionAttr)
-        $packageRefNode.ParentNode.AppendChild($newRefNode)
+        $newRefNode.Attributes.Append($includeAttr) | Out-Null
+        $newRefNode.Attributes.Append($versionAttr) | Out-Null
+        $packageRefNode.ParentNode.AppendChild($newRefNode) | Out-Null
     }
     else {
         $project.Project.ItemGroup.PackageReference | `
