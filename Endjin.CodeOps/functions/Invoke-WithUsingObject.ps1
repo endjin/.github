@@ -1,4 +1,4 @@
-function Using-Object
+function Invoke-WithUsingObject
 {
     [CmdletBinding()]
     param (

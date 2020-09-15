@@ -1,12 +1,14 @@
 #Requires -Modules @{ ModuleName="powershell-yaml"; ModuleVersion="0.4.2" }
+#Requires -Modules @{ ModuleName="Endjin.CodeOps"; ModuleVersion="0.0" }
 
 param (
+    [Parameter(Mandatory=$True)]
     [string] $ConfigDirectory,
+
     [string] $BranchName = "feature/specflow-metapackage",
     [switch] $WhatIf,
     [string] $PrTitle = "Migrate to Corvus.Testing.SpecFlow.NUnit",
-    [string] $PrBody = "Migrating Specs projects to use Corvus.Testing.SpecFlow.NUnit meta package",
-    [switch] $PesterMode
+    [string] $PrBody = "Migrating Specs projects to use Corvus.Testing.SpecFlow.NUnit meta package"
 )
 
 $here = Split-Path -Parent $PSCommandPath
@@ -21,7 +23,7 @@ function _getProjectFiles
 
 function _saveProject
 {
-    Using-Object ($sw = new-object System.IO.StreamWriter($projectFile)) {
+    Invoke-WithUsingObject ($sw = new-object System.IO.StreamWriter($projectFile)) {
         $sw.NewLine = "`n";
         $project.Save($sw)
     }
