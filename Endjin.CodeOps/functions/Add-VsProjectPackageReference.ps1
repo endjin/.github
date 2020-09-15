@@ -12,6 +12,7 @@ function Add-VsProjectPackageReference
         [Version] $PackageVersion
     )
 
+    $updated = $false
     if ($PackageId -notin $project.Project.ItemGroup.PackageReference.Include) {
         Write-Host "Adding reference: '$PackageId' => '$PackageVersion'"
         $packageRefNode = $project.SelectSingleNode("/Project/ItemGroup/PackageReference")
@@ -26,6 +27,7 @@ function Add-VsProjectPackageReference
         $newRefNode.Attributes.Append($includeAttr) | Out-Null
         $newRefNode.Attributes.Append($versionAttr) | Out-Null
         $packageRefNode.ParentNode.AppendChild($newRefNode) | Out-Null
+        $updated = $true
     }
     else {
         $project.Project.ItemGroup.PackageReference | `
@@ -33,8 +35,9 @@ function Add-VsProjectPackageReference
             ForEach-Object {
                 Write-Host "Updating reference version: '$PackageId' => '$PackageVersion'"
                 $_.Version = $PackageVersion
+                $updated = $true
             }
     }
 
-    return $project
+    return $updated,$project
 }
