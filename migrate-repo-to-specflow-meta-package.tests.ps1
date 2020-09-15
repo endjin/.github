@@ -1,9 +1,6 @@
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
-. "$here\$sut" -ConfigDirectory 'will-be-mocked'
-
-# Get-Module Endjin.CodeOps | Remove-Module -Force
-# Import-Module $here/Endjin.CodeOps -Force
+. "$here\$sut"
 
 Describe 'Migrate Repo to SpecFlow Meta Package Tests' {
 
