@@ -1,5 +1,8 @@
-function Get-Repos {
+function Get-Repos
+{
+    [CmdletBinding()]
     param (
+        [Parameter(Mandatory=$True)]
         [string] $ConfigDirectory
     )
 

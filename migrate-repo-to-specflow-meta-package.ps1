@@ -1,6 +1,3 @@
-#Requires -Modules @{ ModuleName="powershell-yaml"; ModuleVersion="0.4.2" }
-#Requires -Modules @{ ModuleName="Endjin.CodeOps"; ModuleVersion="0.0" }
-
 param (
     [Parameter(Mandatory=$True)]
     [string] $ConfigDirectory,
@@ -14,7 +11,9 @@ param (
 $here = Split-Path -Parent $PSCommandPath
 Write-Host "Here: $here"
 
-Import-Module $here/Endjin.CodeOps
+$modulePath = Join-Path $here 'Endjin.CodeOps/Endjin.CodeOps.psd1'
+Get-Module Endjin.CodeOps | Remove-Module -Force
+Import-Module $modulePath
 
 function _getProjectFiles
 {
@@ -97,6 +96,7 @@ function _main
     }
 }
 
+# Detect when dot sourcing the script, so we don't immediately execute anything when running Pester
 if (!$MyInvocation.Line.StartsWith('. ')) {
     _main
 }
