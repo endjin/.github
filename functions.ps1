@@ -45,6 +45,9 @@ function Update-Repo {
         Write-Host "Committing changes"
         git add .
         git commit -m $CommitMessage
+        Write-Host "Pushing branch"
+        git push -u origin $BranchName
+        if ($LASTEXITCODE -ne 0) { Write-Error "Non-zero exit code when pushing branch ('$LASTEXITCODE') - check logs" }
 
         Write-Host "Opening new PR"
         $ghPrArgs = @("pr", "create", "--title", $PrTitle, "--body", $PrBody)
