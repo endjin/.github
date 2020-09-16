@@ -12,9 +12,20 @@ function Update-Repo {
         [string] $CommitMessage,
         [string] $PrTitle,
         [string] $PrBody = " ",
-        [string[]] $PrLabels,
-        [string] $GitHubToken
+        [string[]] $PrLabels
     )
+
+    # Handle GitHub authentication based on whether running in GitHub Actions workflow or not
+    if ( [string]::IsNullOrEmpty($env:GITHUB_TOKEN) -and (Test-Path env:\GITHUB_WORKFLOW) ) {
+        Write-Error "The environment variable GITHUB_TOKEN is not set"
+        exit
+    }
+    elseif ([string]::IsNullOrEmpty($env:GITHUB_TOKEN)) {
+        Write-Host "GITHUB_TOKEN environment variable not present - triggering interactive login..."
+        gh auth login
+        $ghConfig = Get-Content ~/.config/gh/hosts.yml -Raw | ConvertFrom-Yaml
+        $env:GITHUB_TOKEN = $ghConfig."github.com".oauth_token
+    }
 
     $tempDir = New-TemporaryDirectory
 
@@ -38,8 +49,6 @@ function Update-Repo {
         Write-Host "Opening new PR"
         $ghPrArgs = @("pr", "create", "--title", $PrTitle, "--body", $PrBody)
         if ($PrLabels) { $ghPrArgs += @("--label", ($PrLabels -join ",")) }
-
-        Write-Output $GitHubToken | gh auth login --with-token
 
         gh @ghPrArgs
     }

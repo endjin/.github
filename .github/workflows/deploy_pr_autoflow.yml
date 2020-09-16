@@ -33,6 +33,7 @@ jobs:
           git config --global user.name "dependjinbot"
           
           .\sync-pr-autoflow-to-repos.ps1 `
-            -ConfigDirectory "repos/test" `
-            -GitHubToken ${{ steps.generate_token.outputs.token }}
+            -ConfigDirectory "repos/test"
         shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
