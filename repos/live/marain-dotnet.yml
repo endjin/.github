@@ -1,76 +1,14 @@
 repos:
   - org: marain-dotnet
-    name: Marain.TenantManagement
-    prAutoflowSettings:
-      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
-      - Endjin.*
-      - Corvus.*
-      - Menes.*
-      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
-      - Corvus.*
-      - Menes.*
-  - org: marain-dotnet
-    name: Marain.Workflow
-    prAutoflowSettings:
-      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
-      - Endjin.*
-      - Corvus.*
-      - Menes.*
-      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
-      - Corvus.*
-      - Menes.*
-  - org: marain-dotnet
-    name: Marain.ContentManagement
-    prAutoflowSettings:
-      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
-      - Endjin.*
-      - Corvus.*
-      - Menes.*
-      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
-      - Corvus.*
-      - Menes.*
-  - org: marain-dotnet
-    name: Marain.Claims
-    prAutoflowSettings:
-      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
-      - Endjin.*
-      - Corvus.*
-      - Menes.*
-      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
-      - Corvus.*
-      - Menes.*
-  - org: marain-dotnet
-    name: Marain.Operations
-    prAutoflowSettings:
-      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
-      - Endjin.*
-      - Corvus.*
-      - Menes.*
-      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
-      - Corvus.*
-      - Menes.*
-  - org: marain-dotnet
-    name: Marain.UserNotifications
-    prAutoflowSettings:
-      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
-      - Endjin.*
-      - Corvus.*
-      - Menes.*
-      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
-      - Corvus.*
-      - Menes.*
-  - org: marain-dotnet
-    name: Marain.KeyRotation
-    prAutoflowSettings:
-      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
-      - Endjin.*
-      - Corvus.*
-      - Menes.*
-      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
-      - Corvus.*
-      - Menes.*
-  - org: marain-dotnet
-    name: Marain.Tenancy
+    name:
+    - Marain.TenantManagement
+    - Marain.Workflow
+    - Marain.ContentManagement
+    - Marain.Claims
+    - Marain.Operations
+    - Marain.UserNotifications
+    - Marain.KeyRotation
+    - Marain.Tenancy
     prAutoflowSettings:
       AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
       - Endjin.*
