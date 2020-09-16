@@ -68,7 +68,7 @@ function _repoChanges
 
         # Add reference to SpecFlow meta package, looking-up the latest non-prerelease version
         $packageName = 'Corvus.Testing.SpecFlow.NUnit'
-        $nugetApiResponse = (Invoke-WebRequest -Uri "https://api.nuget.org/v3-flatcontainer/$($packageName.ToLower())/index.json").Content | ConvertFrom-Json
+        $nugetApiResponse = (Invoke-WebRequest -Uri "https://api.nuget.org/v3-flatcontainer/$($packageName.ToLower())/index.json" -Verbose:$False ).Content | ConvertFrom-Json
         $latestStableVersion = $nugetApiResponse.Versions | Select-Object -Last 1
         $updated,$project = Add-VsProjectPackageReference -Project $project `
                                                           -PackageId $packageName `
@@ -96,17 +96,25 @@ function _main
     try {
         $repos = Get-Repos -ConfigDirectory $ConfigDirectory
         foreach ($repo in $repos) {
-            Write-Host ('`nProcessing repo: {0}/{1}' -f $repo.org, $repo.name)
+            # 'name' can be a YAML list for repos that share the same config settings
+            foreach ($r in $repo.name) {
+                if ($repo.specflowMetapackageSettings.enabled) {
+                    Write-Host ("`nProcessing repo: {0}/{1}" -f $repo.org, $r) -f green
 
-            Update-Repo `
-                -RepoUrl "https://github.com/$($repo.org)/$($repo.name).git" `
-                -BranchName $BranchName `
-                -RepoChanges (Get-ChildItem function:\_repoChanges).ScriptBlock `
-                -CommitMessage "Committing changes" `
-                -PrTitle $PrTitle `
-                -PrBody $PrBody `
-                -PrLabels "no_release" `
-                -WhatIf:$WhatIf
+                    Update-Repo `
+                        -RepoUrl "https://github.com/$($repo.org)/$($r).git" `
+                        -BranchName $BranchName `
+                        -RepoChanges (Get-ChildItem function:\_repoChanges).ScriptBlock `
+                        -CommitMessage "Committing changes" `
+                        -PrTitle $PrTitle `
+                        -PrBody $PrBody `
+                        -PrLabels "no_release" `
+                        -WhatIf:$WhatIf
+                }
+                else {
+                    Write-Host ("`nSkipping repo '{0}/{1}' due to 'specflowMetapackageSettings.enabled' setting" -f $repo.org, $repo.name) -f green
+                }
+            }
         }
     }
     catch {

@@ -27,7 +27,7 @@ function Update-Repo {
 
         if ($isUpdated) {
             if (!$WhatIf) {
-                Write-Host "Committing changes"
+                Write-Host "Committing changes" -f green
                 git add .
                 if ($LASTEXITCODE -ne 0) { throw "git cli returned non-zero exit code staging files - check previous log messages" }
                 git commit -m $CommitMessage
@@ -44,13 +44,12 @@ function Update-Repo {
             }
         }
         else {
-            Write-Host "Repo is already up-to-date or contained no .Specs projects"
+            Write-Host "Repo was unchanged" -f green
         }
     }
     finally {
         Pop-Location
-
-        "Deleting temporary directory: $($tempDir.FullName)"
+        Write-Verbose "Deleting temporary directory: $($tempDir.FullName)"
         Remove-Item $tempDir -Recurse -Force
     }
 }
