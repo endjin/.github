@@ -31,6 +31,8 @@ jobs:
 
           git config --global user.email "dependjinbot@endjin.com"
           git config --global user.name "dependjinbot"
+          $credentialHelperPath = Resolve-Path ./git-credential-helper.sh
+          git config --global credential.helper "/bin/bash $($credentialHelperPath.Path)"
           
           .\sync-pr-autoflow-to-repos.ps1 `
             -ConfigDirectory "repos/test"
