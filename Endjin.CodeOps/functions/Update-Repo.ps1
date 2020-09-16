@@ -7,8 +7,20 @@ function Update-Repo {
         [string] $CommitMessage,
         [string] $PrTitle,
         [string] $PrBody = " ",
-        [string] $PrLabels
+        [string[]] $PrLabels
     )
+
+    # Handle GitHub authentication based on whether running in GitHub Actions workflow or not
+    if ( [string]::IsNullOrEmpty($env:GITHUB_TOKEN) -and (Test-Path env:\GITHUB_WORKFLOW) ) {
+        Write-Error "The environment variable GITHUB_TOKEN is not set"
+        exit
+    }
+    elseif ([string]::IsNullOrEmpty($env:GITHUB_TOKEN)) {
+        Write-Host "GITHUB_TOKEN environment variable not present - triggering interactive login..."
+        gh auth login
+        $ghConfig = Get-Content ~/.config/gh/hosts.yml -Raw | ConvertFrom-Yaml
+        $env:GITHUB_TOKEN = $ghConfig."github.com".oauth_token
+    }
 
     $tempDir = New-TemporaryDirectory
     Push-Location $tempDir.FullName
@@ -29,9 +41,13 @@ function Update-Repo {
             if (!$WhatIf) {
                 Write-Host "Committing changes" -f green
                 git add .
-                if ($LASTEXITCODE -ne 0) { throw "git cli returned non-zero exit code staging files - check previous log messages" }
+                if ($LASTEXITCODE -ne 0) { throw "git cli returned non-zero exit code staging files ('$LASTEXITCODE') - check previous log messages" }
                 git commit -m $CommitMessage
-                if ($LASTEXITCODE -ne 0) { throw "git cli returned non-zero exit code committing changes - check previous log messages" }
+		        if ($LASTEXITCODE -ne 0) { throw "git cli returned non-zero exit code committing changes ('$LASTEXITCODE') - check previous log messages" }
+                
+                Write-Host "Pushing branch"
+                git push -u origin $BranchName
+                if ($LASTEXITCODE -ne 0) { Write-Error "git cli returned non-zero exit code when pushing branch ('$LASTEXITCODE') - check logs" }
 
                 Write-Host "Opening new PR"
                 $ghPrArgs = @("pr", "create", "--title", $PrTitle, "--body", $PrBody)

@@ -7,20 +7,13 @@ param (
     [switch] $ConfigureGitVersion,
     [switch] $ConfigureDependabotV2,
     [switch] $WhatIf,
-    [string] $PrBody = "Syncing latest version of pr-autoflow",
-    [string] $GitHubToken
+    [string] $PrBody = "Syncing latest version of pr-autoflow"
 )
 
 $here = Split-Path -Parent $PSCommandPath
 Write-Host "Here: $here"
 
 Import-Module $here/Endjin.CodeOps
-
-if (!$GitHubToken) {
-    gh auth login
-    $ghConfig = Get-Content ~/.config/gh/hosts.yml -Raw | ConvertFrom-Yaml
-    $GitHubToken = $ghConfig."github.com".oauth_token
-}
 
 $repos = Get-Repos $ConfigDirectory
 
@@ -135,7 +128,6 @@ $repos | ForEach-Object {
             -CommitMessage "Committing changes" `
             -PrTitle $prTitle `
             -PrBody $PrBody `
-            -PrLabels $prLabels `
-            -GitHubToken $GitHubToken
+            -PrLabels $prLabels
     }
 }
