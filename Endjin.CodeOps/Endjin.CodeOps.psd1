@@ -12,7 +12,7 @@
 RootModule = 'Endjin.CodeOps.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.0.1'
+ModuleVersion = '0.0.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -21,19 +21,19 @@ ModuleVersion = '0.0.1'
 GUID = 'f93ff550-8cac-4de2-9ac1-c500a4bac6fb'
 
 # Author of this module
-Author = 'james'
+Author = 'Endjineers'
 
 # Company or vendor of this module
-CompanyName = 'Unknown'
+CompanyName = 'Endjin Limited'
 
 # Copyright statement for this module
-Copyright = '(c) james. All rights reserved.'
+Copyright = '(c) endjin. All rights reserved.'
 
 # Description of the functionality provided by this module
-# Description = ''
+Description = 'A collection of useful functions for managing GitHub repositories and their codebase'
 
 # Minimum version of the PowerShell engine required by this module
-# PowerShellVersion = ''
+PowerShellVersion = '6.0'
 
 # Name of the PowerShell host required by this module
 # PowerShellHostName = ''
@@ -95,16 +95,16 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        # Tags = @()
+        Tags = @('github')
 
         # A URL to the license for this module.
-        # LicenseUri = ''
+        LicenseUri = 'https://github.com/endjin/.github/blob/master/LICENSE'
 
         # A URL to the main website for this project.
-        # ProjectUri = ''
+        ProjectUri = 'https://github.com/endjin/.github'
 
         # A URL to an icon representing this module.
-        # IconUri = ''
+        IconUri = 'https://www.nuget.org/profiles/endjin/avatar'
 
         # ReleaseNotes of this module
         # ReleaseNotes = ''
