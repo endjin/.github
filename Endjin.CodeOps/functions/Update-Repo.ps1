@@ -30,7 +30,7 @@ function Update-Repo {
                                -RepoName $RepoName `
                                -Name 'no_release' `
                                -Description 'Suppresses auto_release functionality' `
-                               -Color '#27e8b4' `
+                               -Color '27e8b4' `
                                -Verbose:$False
 
     $tempDir = New-TemporaryDirectory
