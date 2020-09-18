@@ -96,8 +96,6 @@ function _main
     try {
         $repos = Get-Repos -ConfigDirectory $ConfigDirectory
         foreach ($repo in $repos) {
-            # 'name' can be a YAML list for repos that share the same config settings
-
             # When running in GitHub Actions we will need ensure the GitHub App is
             # authenticated for the current GitHub Org
             if ($env:SSH_PRIVATE_KEY -and $env:GITHUB_APP_ID) {
@@ -109,9 +107,10 @@ function _main
                 $env:GITHUB_TOKEN = $accessToken
             }
 
-            foreach ($r in $repo.name) {
+            # 'name' can be a YAML list for repos that share the same config settings
+            foreach ($repoName in $repo.name) {
                 if ($repo.specflowMetaPackageSettings.enabled) {
-                    Write-Host ("`nProcessing repo: {0}/{1}" -f $repo.org, $r) -f green
+                    Write-Host ("`nProcessing repo: {0}/{1}" -f $repo.org, $repoName) -f green
 
                     Update-Repo `
                         -OrgName $repo.org `
@@ -125,7 +124,7 @@ function _main
                         -WhatIf:$WhatIf
                 }
                 else {
-                    Write-Host ("`nSkipping repo '{0}/{1}' due to 'specflowMetaPackageSettings.enabled' setting" -f $repo.org, $repo.name) -f green
+                    Write-Host ("`nSkipping repo '{0}/{1}' due to 'specflowMetaPackageSettings.enabled' setting" -f $repo.org, $repoName) -f green
                 }
             }
         }
