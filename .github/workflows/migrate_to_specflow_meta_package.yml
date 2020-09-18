@@ -26,7 +26,7 @@ jobs:
           $credentialHelperPath = Resolve-Path ./git-credential-helper.sh
           git config --global credential.helper "/bin/bash $($credentialHelperPath.Path)"
           
-          .\migrate-repo-to-specflow-meta-package.ps1 -ConfigDirectory "repos/test"
+          .\migrate-to-specflow-meta-package.ps1 -ConfigDirectory "repos/test"
         shell: pwsh
         env:
           SSH_PRIVATE_KEY: ${{ secrets.DEPENDJINBOT_PRIVATE_KEY }}
