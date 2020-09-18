@@ -1,0 +1,35 @@
+name: migrate_to_specflow_meta_package
+on: 
+  push:
+    branches:
+    - master
+  workflow_dispatch:
+
+jobs:
+  migrate_to_specflow_meta_package:
+    runs-on: ubuntu-latest
+    name: Migrate SpecFlow Projects to use SpecFlow meta package
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Install GH CLI
+        run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+          sudo apt-add-repository -u https://cli.github.com/packages
+          sudo apt install gh
+        shell: bash
+      - name: Run migrate-to-specflow-meta-package.ps1
+        run: |
+          Install-Module powershell-yaml -Force
+
+          git config --global user.email "dependjinbot@endjin.com"
+          git config --global user.name "dependjinbot"
+          $credentialHelperPath = Resolve-Path ./git-credential-helper.sh
+          git config --global credential.helper "/bin/bash $($credentialHelperPath.Path)"
+          
+          .\migrate-repo-to-specflow-meta-package.ps1 -ConfigDirectory "repos/test"
+        shell: pwsh
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.DEPENDJINBOT_PRIVATE_KEY }}
+          GITHUB_APP_ID: ${{ secrets.DEPENDJINBOT_APP_ID }}
