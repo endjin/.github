@@ -13,12 +13,6 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Generate token
-        id: generate_token
-        uses: tibdex/github-app-token@v1
-        with:
-          app_id: ${{ secrets.DEPENDJINBOT_APP_ID }}
-          private_key: ${{ secrets.DEPENDJINBOT_PRIVATE_KEY }}
       - name: Install GH CLI
         run: |
           sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
@@ -34,9 +28,7 @@ jobs:
           $credentialHelperPath = Resolve-Path ./git-credential-helper.sh
           git config --global credential.helper "/bin/bash $($credentialHelperPath.Path)"
           
-          .\sync-pr-autoflow-to-repos.ps1 `
-            -ConfigDirectory "repos/test" `
-            -Verbose
+          .\sync-pr-autoflow-to-repos.ps1 -ConfigDirectory "repos/test"
         shell: pwsh
         env:
           SSH_PRIVATE_KEY: ${{ secrets.DEPENDJINBOT_PRIVATE_KEY }}
