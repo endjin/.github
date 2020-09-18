@@ -26,8 +26,21 @@ function Add-VsProjectPackageReference
 
         $newRefNode.Attributes.Append($includeAttr) | Out-Null
         $newRefNode.Attributes.Append($versionAttr) | Out-Null
-        $packageRefNode.ParentNode.AppendChild($newRefNode) | Out-Null
-        $updated = $true
+
+        # No <PackageDependency> elements
+        if (!$packageRefNode) {
+            $newItemGroupNode = $project.CreateElement('ItemGroup')
+            $newItemGroupNode.AppendChild($newRefNode) | Out-Null
+
+            $projectNode = $project.SelectSingleNode("/Project")
+            $projectNode.AppendChild($newItemGroupNode) | Out-Null
+            $updated = $true
+        }
+        else {
+            $packageRefNode.ParentNode.AppendChild($newRefNode) | Out-Null
+            $updated = $true
+        }
+        
     }
     else {
         $project.Project.ItemGroup.PackageReference | `

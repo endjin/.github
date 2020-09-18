@@ -47,6 +47,14 @@ function _repoChanges
             ForEach-Object { '{0}.{1}' -f $_.Include, $_.Version }
         Write-Verbose "Original Refs:`n$($originalRefs -join [Environment]::NewLine)"
 
+        # Add reference to SpecFlow meta package, looking-up the latest non-prerelease version
+        $packageName = 'Corvus.Testing.SpecFlow.NUnit'
+        $nugetApiResponse = (Invoke-WebRequest -Uri "https://api.nuget.org/v3-flatcontainer/$($packageName.ToLower())/index.json" -Verbose:$False ).Content | ConvertFrom-Json
+        $latestStableVersion = $nugetApiResponse.Versions | Select-Object -Last 1
+        $updated,$project = Add-VsProjectPackageReference -Project $project `
+                                                            -PackageId $packageName `
+                                                            -PackageVersion $latestStableVersion
+                                                            
         # Remove the references that are superceded by the meta package
         $packageRefsToRemove = @(
             'SpecFlow'
@@ -65,14 +73,6 @@ function _repoChanges
                 $project = $updatedProject
             }
         }
-
-        # Add reference to SpecFlow meta package, looking-up the latest non-prerelease version
-        $packageName = 'Corvus.Testing.SpecFlow.NUnit'
-        $nugetApiResponse = (Invoke-WebRequest -Uri "https://api.nuget.org/v3-flatcontainer/$($packageName.ToLower())/index.json" -Verbose:$False ).Content | ConvertFrom-Json
-        $latestStableVersion = $nugetApiResponse.Versions | Select-Object -Last 1
-        $updated,$project = Add-VsProjectPackageReference -Project $project `
-                                                          -PackageId $packageName `
-                                                          -PackageVersion $latestStableVersion
 
         $updatedRefs = $project.Project.ItemGroup.PackageReference | `
             Where-Object { $_.Include } | `
@@ -139,6 +139,6 @@ function _main
 }
 
 # Detect when dot sourcing the script, so we don't immediately execute anything when running Pester
-if (!$MyInvocation.Line -or !$MyInvocation.Line.StartsWith('. ')) {
+if (!$MyInvocation.Line.StartsWith('. ')) {
     _main
 }
