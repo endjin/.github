@@ -1,5 +1,6 @@
 #Requires -Modules @{ ModuleName="powershell-yaml"; ModuleVersion="0.4.2" }
 
+[CmdletBinding()]
 param (
     [string] $ConfigDirectory,
     [string] $BranchName = "feature/pr-autoflow",

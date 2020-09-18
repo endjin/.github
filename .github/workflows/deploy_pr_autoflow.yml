@@ -35,7 +35,8 @@ jobs:
           git config --global credential.helper "/bin/bash $($credentialHelperPath.Path)"
           
           .\sync-pr-autoflow-to-repos.ps1 `
-            -ConfigDirectory "repos/test"
+            -ConfigDirectory "repos/test" `
+            -Verbose
         shell: pwsh
         env:
           SSH_PRIVATE_KEY: ${{ secrets.DEPENDJINBOT_PRIVATE_KEY }}
