@@ -42,18 +42,30 @@ function Update-Repo {
                 Write-Host "Committing changes" -f green
                 git add .
                 if ($LASTEXITCODE -ne 0) { throw "git cli returned non-zero exit code staging files ('$LASTEXITCODE') - check previous log messages" }
-                git commit -m $CommitMessage
-		        if ($LASTEXITCODE -ne 0) { throw "git cli returned non-zero exit code committing changes ('$LASTEXITCODE') - check previous log messages" }
                 
-                Write-Host "Pushing branch"
-                git push -u origin $BranchName
-                if ($LASTEXITCODE -ne 0) { Write-Error "git cli returned non-zero exit code when pushing branch ('$LASTEXITCODE') - check logs" }
+                $noChanges = $false
+                $output = git commit -m $CommitMessage
+                if ($LASTEXITCODE -ne 0) {
+                    if ($output -match 'nothing to commit') {
+                        $noChanges = $true
+                        Write-Host "git detected no changes - skipping update"
+                    }
+                    else {
+                        throw "git cli returned non-zero exit code committing changes ('$LASTEXITCODE'):`n$output"
+                    }
+                }
+                
+                if ( -not $noChanges ) {
+                    Write-Host "Pushing branch"
+                    git push -u origin $BranchName
+                    if ($LASTEXITCODE -ne 0) { Write-Error "git cli returned non-zero exit code when pushing branch ('$LASTEXITCODE') - check logs" }
 
-                Write-Host "Opening new PR"
-                $ghPrArgs = @("pr", "create", "--title", $PrTitle, "--body", $PrBody)
-                if ($PrLabels) { $ghPrArgs += @("--label", $PrLabels) }
-                gh @ghPrArgs
-                if ($LASTEXITCODE -ne 0) { throw "github cli returned non-zero exit code - check previous log messages" }
+                    Write-Host "Opening new PR"
+                    $ghPrArgs = @("pr", "create", "--title", $PrTitle, "--body", $PrBody)
+                    if ($PrLabels) { $ghPrArgs += @("--label", $PrLabels) }
+                    gh @ghPrArgs
+                    if ($LASTEXITCODE -ne 0) { throw "github cli returned non-zero exit code - check previous log messages" }
+                }
             }
             else {
                 Write-Host "What if: Would have committed changes and created new PR" -f cyan

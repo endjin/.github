@@ -9,10 +9,12 @@ param (
     [switch] $WhatIf,
     [string] $PrBody = "Syncing latest version of pr-autoflow"
 )
+$ErrorActionPreference = 'Stop'
 
 $here = Split-Path -Parent $PSCommandPath
 Write-Host "Here: $here"
 
+Get-Module Endjin.CodeOps | Remove-Module -Force
 Import-Module $here/Endjin.CodeOps
 
 $repos = Get-Repos $ConfigDirectory
@@ -21,6 +23,17 @@ Write-Host "Repo count: " $repos.Count
 
 $repos | ForEach-Object {
     $repo = $_
+
+    # When running in GitHub Actions we will need ensure the GitHub App is
+    # authenticated for the current GitHub Org
+    if ($env:SSH_PRIVATE_KEY -and $env:GITHUB_APP_ID) {
+        Write-Host "Getting access token for organisation: '$($repo.org)'"
+        $accessToken = New-GitHubAppInstallationAccessToken -AppId $env:GITHUB_APP_ID `
+                                                            -AppPrivateKey $env:SSH_PRIVATE_KEY `
+                                                            -OrgName $repo.org
+        # gh cli authentcation uses this environment variable
+        $env:GITHUB_TOKEN = $accessToken
+    }
 
     # 'name' can be a YAML list for repos that share the same config settings
     foreach ($repoName in $repo.name) {
@@ -123,6 +136,7 @@ $repos | ForEach-Object {
 
         Update-Repo `
             -RepoUrl "https://github.com/$($repo.org)/$($repoName).git" `
+            -BranchName $BranchName `
             -RepoChanges $repoChanges `
             -WhatIf:$WhatIf `
             -CommitMessage "Committing changes" `

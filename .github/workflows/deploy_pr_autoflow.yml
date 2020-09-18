@@ -38,4 +38,5 @@ jobs:
             -ConfigDirectory "repos/test"
         shell: pwsh
         env:
-          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
+          SSH_PRIVATE_KEY: ${{ secrets.DEPENDJINBOT_PRIVATE_KEY }}
+          GITHUB_APP_ID: ${{ secrets.DEPENDJINBOT_APP_ID }}

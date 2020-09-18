@@ -12,10 +12,10 @@ function New-RsaSha256Signature
     $here = Split-Path -Parent $PSCommandPath
     Use-Assembly -Path ([IO.Path]::Combine($here, '..', 'lib', 'BouncyCastle.Crypto.dll')) | Out-Null
 
-	# Prepare private key
-    Invoke-WithUsingObject ($sr = New-Object System.IO.StringReader $pem) {
+    # Prepare private key
+    $key = Invoke-WithUsingObject ($sr = New-Object System.IO.StringReader $pem) {
         Invoke-WithUsingObject ($pr = New-Object Org.BouncyCastle.OpenSsl.PemReader $sr) {
-            $key = ([Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair] ($pr.ReadObject())).Private
+            ([Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair] ($pr.ReadObject())).Private
         }
     } 
 

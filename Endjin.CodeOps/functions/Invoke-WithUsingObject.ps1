@@ -16,7 +16,7 @@ function Invoke-WithUsingObject
  
     try
     {
-        . $ScriptBlock
+        $output = $ScriptBlock.Invoke()
     }
     finally
     {
@@ -25,4 +25,6 @@ function Invoke-WithUsingObject
             $InputObject.Dispose()
         }
     }
+
+    $output
 }

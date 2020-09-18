@@ -7,3 +7,14 @@ repos:
       - Corvus.*
       AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS:
       - Corvus.*
+    specflowMetaPackageSettings:
+      enabled: true
+  - org: corvus-dotnet
+    name:
+    - Corvus.Retry
+    prAutoflowSettings:
+      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Endjin.*
+      - Corvus.*
+    specflowMetaPackageSettings:
+      enabled: true
