@@ -1,6 +1,7 @@
 function Update-Repo {
     param (
-        [string] $RepoUrl,
+        [string] $OrgName,
+        [string] $RepoName,
         [string] $BranchName,
         [scriptblock]$RepoChanges,
         [switch] $WhatIf,
@@ -9,6 +10,8 @@ function Update-Repo {
         [string] $PrBody = " ",
         [string[]] $PrLabels
     )
+
+    $RepoUrl = "https://github.com/$OrgName/$($RepoName).git"
 
     # Handle GitHub authentication based on whether running in GitHub Actions workflow or not
     if ( [string]::IsNullOrEmpty($env:GITHUB_TOKEN) -and (Test-Path env:\GITHUB_WORKFLOW) ) {
@@ -21,6 +24,14 @@ function Update-Repo {
         $ghConfig = Get-Content ~/.config/gh/hosts.yml -Raw | ConvertFrom-Yaml
         $env:GITHUB_TOKEN = $ghConfig."github.com".oauth_token
     }
+
+    Write-Host "Checking for 'no_release' label"
+    $resp = Ensure-GitHubLabel -OrgName $OrgName `
+                               -RepoName $RepoName `
+                               -Name 'no_release' `
+                               -Description 'Suppresses auto_release functionality' `
+                               -Color '#27e8b4' `
+                               -Verbose:$False
 
     $tempDir = New-TemporaryDirectory
     Push-Location $tempDir.FullName

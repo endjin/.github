@@ -114,7 +114,8 @@ function _main
                     Write-Host ("`nProcessing repo: {0}/{1}" -f $repo.org, $r) -f green
 
                     Update-Repo `
-                        -RepoUrl "https://github.com/$($repo.org)/$($r).git" `
+                        -OrgName $repo.org `
+                        -RepoName $repoName `
                         -BranchName $BranchName `
                         -RepoChanges (Get-ChildItem function:\_repoChanges).ScriptBlock `
                         -CommitMessage "Committing changes" `

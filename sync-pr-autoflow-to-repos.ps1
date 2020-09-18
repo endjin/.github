@@ -136,7 +136,8 @@ $repos | ForEach-Object {
         $prTitle = "Bump Endjin.PRAutoflow from 1.0.0 to 1.0.1 in .github/workflows"
 
         Update-Repo `
-            -RepoUrl "https://github.com/$($repo.org)/$($repoName).git" `
+            -OrgName $repo.org `
+            -RepoName $repoName `
             -BranchName $BranchName `
             -RepoChanges $repoChanges `
             -WhatIf:$WhatIf `
