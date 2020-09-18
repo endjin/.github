@@ -1,8 +1,6 @@
 name: migrate_to_specflow_meta_package
 on: 
   push:
-    branches:
-    - master
   workflow_dispatch:
 
 jobs:
