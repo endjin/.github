@@ -14,8 +14,8 @@ param (
 
     [switch] $WhatIf
 )
-
 $ErrorActionPreference = 'Stop'
+
 $here = Split-Path -Parent $PSCommandPath
 $modulePath = Join-Path $here 'Endjin.CodeOps/Endjin.CodeOps.psd1'
 Get-Module Endjin.CodeOps | Remove-Module -Force
@@ -72,7 +72,7 @@ function _repoChanges
         $latestStableVersion = $nugetApiResponse.Versions | Select-Object -Last 1
         $updated,$project = Add-VsProjectPackageReference -Project $project `
                                                           -PackageId $packageName `
-`                                                         -PackageVersion $latestStableVersion
+                                                          -PackageVersion $latestStableVersion
 
         $updatedRefs = $project.Project.ItemGroup.PackageReference | `
             Where-Object { $_.Include } | `
@@ -139,6 +139,6 @@ function _main
 }
 
 # Detect when dot sourcing the script, so we don't immediately execute anything when running Pester
-if (!$MyInvocation.Line.StartsWith('. ')) {
+if (!$MyInvocation.Line -or !$MyInvocation.Line.StartsWith('. ')) {
     _main
 }

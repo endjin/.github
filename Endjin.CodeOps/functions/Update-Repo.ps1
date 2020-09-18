@@ -3,7 +3,7 @@ function Update-Repo {
         [string] $OrgName,
         [string] $RepoName,
         [string] $BranchName,
-        [scriptblock]$RepoChanges,
+        [scriptblock] $RepoChanges,
         [switch] $WhatIf,
         [string] $CommitMessage,
         [string] $PrTitle,
