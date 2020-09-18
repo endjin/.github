@@ -27,7 +27,7 @@ function Ensure-GitHubLabel
             color = $Color
         }
         $resp = Invoke-GitHubRestRequest -Url "https://api.github.com/repos/$OrgName/$RepoName/labels" `
-                                         -Method POST `
+                                         -Verb POST `
                                          -Body ($body | ConvertTo-Json -Compress)
     }
 }
