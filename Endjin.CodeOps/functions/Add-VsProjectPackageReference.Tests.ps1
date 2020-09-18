@@ -43,6 +43,25 @@ $testProject = @'
 </Project>
 '@
 
+$testProjectNoPackages = @'
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(EndjinProjectPropsPath)" Condition="$(EndjinProjectPropsPath) != ''" />
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>Menes.Specs</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Menes.Abstractions\Menes.Abstractions.csproj" />
+    <ProjectReference Include="..\Menes.Hosting.AspNetCore\Menes.Hosting.AspNetCore.csproj" />
+  </ItemGroup>
+
+</Project>
+'@
+
 Describe 'Add-VsProjectPackageReference Tests' {
 
     It 'should successfully add a package reference' {
@@ -56,6 +75,7 @@ Describe 'Add-VsProjectPackageReference Tests' {
                                                         -PackageVersion '1.1.0'
 
         $isUpdated | Should -BeOfType [bool]
+        $isUpdated | Should -Be $True
         $updatedProject | Should -BeOfType [xml]
         $updatedProject.Project.ItemGroup.PackageReference.Include.Count | Should -be 11
         $updatedProject.Project.ItemGroup.ProjectReference.Include.Count | Should -be 2
@@ -69,13 +89,15 @@ Describe 'Add-VsProjectPackageReference Tests' {
       $project.Project.ItemGroup.PackageReference.Include.Count | Should -be 10
       $project.Project.ItemGroup.ProjectReference.Include.Count | Should -be 2
 
-      $updatedProject = Add-VsProjectPackageReference -Project $project `
+      $isUpdated,$updatedProject = Add-VsProjectPackageReference -Project $project `
                                                       -PackageId 'Corvus.Testing.SpecFlow' `
                                                       -PackageVersion '0.7.0'
 
       $updatedProject.Project.ItemGroup.PackageReference.Include.Count | Should -be 10
       $updatedProject.Project.ItemGroup.ProjectReference.Include.Count | Should -be 2
 
+      $isUpdated | Should -BeOfType [bool]
+      $isUpdated | Should -Be $False
       Assert-MockCalled -Times 0 Write-Host
   }
 
@@ -85,10 +107,12 @@ Describe 'Add-VsProjectPackageReference Tests' {
     $project.Project.ItemGroup.PackageReference.Include.Count | Should -be 10
     $project.Project.ItemGroup.ProjectReference.Include.Count | Should -be 2
 
-    $updatedProject = Add-VsProjectPackageReference -Project $project `
+    $isUpdated,$updatedProject = Add-VsProjectPackageReference -Project $project `
                                                     -PackageId 'Corvus.Testing.SpecFlow' `
                                                     -PackageVersion '0.8.0'
 
+    $isUpdated | Should -BeOfType [bool]
+    $isUpdated | Should -Be $True
     $updatedProject.Project.ItemGroup.PackageReference.Include.Count | Should -be 10
     $updatedProject.Project.ItemGroup.ProjectReference.Include.Count | Should -be 2
     $updatedProject.Project.ItemGroup.PackageReference | `
@@ -97,5 +121,18 @@ Describe 'Add-VsProjectPackageReference Tests' {
         Should -be '0.8.0'
     
     Assert-MockCalled -Times 1 Write-Host
+  }
+
+  It 'should successfully add package references to a project with no package references' {
+    [xml]$project = $testProjectNoPackages
+
+    $isUpdated,$updatedProject = Add-VsProjectPackageReference -Project $project `
+                                                      -PackageId 'Corvus.Testing.SpecFlow.NUnit' `
+                                                      -PackageVersion '1.1.0'
+
+    $isUpdated | Should -BeOfType [bool]
+    $isUpdated | Should -Be $True
+    $updatedProject | Should -BeOfType [xml]
+    $updatedProject.Project.ItemGroup.PackageReference.Include.Count | Should -be 1
   }
 }
