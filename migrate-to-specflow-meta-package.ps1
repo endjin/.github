@@ -7,7 +7,7 @@ param (
     [string] $BranchName = "feature/specflow-metapackage",
 
     [ValidateNotNullOrEmpty()]
-    [string] $PrTitle = "Migrate to Corvus.Testing.SpecFlow.NUnit",
+    [string] $PrTitle = "Bump Corvus.Testing.SpecFlow.NUnit *MIGRATION-IGNORE-VERSIONS* from 0.0.0 to 0.0.1 in .github/workflows",
 
     [ValidateNotNullOrEmpty()]
     [string] $PrBody = "Migrating Specs projects to use Corvus.Testing.SpecFlow.NUnit meta package",
