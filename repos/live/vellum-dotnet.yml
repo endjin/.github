@@ -1,7 +1,7 @@
 repos:
-  - org: menes-dotnet
+  - org: vellum-dotnet
     name:
-    - Menes
+    - vellum-cli
     prAutoflowSettings:
       AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
       - Endjin.*
