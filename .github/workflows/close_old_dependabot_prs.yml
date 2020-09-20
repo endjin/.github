@@ -1,0 +1,32 @@
+name: close_old_dependabot_prs
+on: 
+  workflow_dispatch:
+
+jobs:
+  close_old_dependabot_prs:
+    runs-on: ubuntu-latest
+    name: Closes open PRs created by the non GitHub-integrated version of Dependabot
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Install GH CLI
+        run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+          sudo apt-add-repository -u https://cli.github.com/packages
+          sudo apt install gh
+        shell: bash
+      - name: Run close-old-dependabot-prs.ps1
+        run: |
+          Install-Module powershell-yaml -Force
+
+          git config --global user.email "endjinbot@endjin.com"
+          git config --global user.name "endjinbot"
+          $credentialHelperPath = Resolve-Path ./git-credential-helper.sh
+          git config --global credential.helper "/bin/bash $($credentialHelperPath.Path)"
+          
+          ./close-old-dependabot-prs.ps1 -ConfigDirectory "repos/test"
+        shell: pwsh
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.ENDJIN_BOT_PRIVATE_KEY }}
+          GITHUB_APP_ID: ${{ secrets.ENDJIN_BOT_APP_ID }}
