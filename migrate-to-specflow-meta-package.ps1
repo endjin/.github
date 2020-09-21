@@ -107,7 +107,7 @@ function _repoChanges
 function _main
 {
     try {
-        $repos = Get-Repos -ConfigDirectory $ConfigDirectory
+        $repos = Get-AllRepoConfiguration -ConfigDirectory $ConfigDirectory
         foreach ($repo in $repos) {
             # When running in GitHub Actions we will need ensure the GitHub App is
             # authenticated for the current GitHub Org
