@@ -21,7 +21,7 @@ jobs:
         shell: bash
       - name: Run sync-pr-autoflow-to-repos.ps1
         run: |
-          Install-Module powershell-yaml -Force
+          Install-Module powershell-yaml -Force -Scope CurrentUser -Repository PSGallery
 
           git config --global user.email "dependjinbot@endjin.com"
           git config --global user.name "dependjinbot"

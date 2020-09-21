@@ -5,7 +5,7 @@ try {
     # Ensure we use tour targetted version of Pester
     [array]$existingModule = Get-Module -ListAvailable Pester
     if (!$existingModule -or ($existingModule.Version -notcontains $pesterVer)) {
-        Install-Module Pester -RequiredVersion $pesterVer -Force -Scope CurrentUser
+        Install-Module Pester -RequiredVersion $pesterVer -Force -Scope CurrentUser -Repository PSGallery
     }
     Import-Module Pester
 
@@ -15,7 +15,7 @@ try {
     )
     $requiredModules | ForEach-Object {
         if (!(Get-Module -ListAvailable $_) ) {
-            Install-Module $_ -Force
+            Install-Module $_ -Force -Scope CurrentUser -Repository PSGallery
         }
     }
 

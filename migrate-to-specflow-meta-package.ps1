@@ -28,7 +28,7 @@ $requiredModules = @(
 )
 $requiredModules | ForEach-Object {
     if ( !(Get-Module -ListAvailable $_) ) {
-        Install-Module $_ -Scope CurrentUser
+        Install-Module $_ -Scope CurrentUser -Repository PSGallery -Force
     }   
 }
 
