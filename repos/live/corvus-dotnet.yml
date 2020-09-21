@@ -24,6 +24,7 @@ repos:
       enabled: false
     syncWorkflowTemplates: false
 
+  # Corvus.Testing auto-merges changes to SpecFlow packages
   - org: corvus-dotnet
     name: Corvus.Testing
     prAutoflowSettings:
