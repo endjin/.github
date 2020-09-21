@@ -21,6 +21,27 @@ $modulePath = Join-Path $here 'Endjin.CodeOps/Endjin.CodeOps.psd1'
 Get-Module Endjin.CodeOps | Remove-Module -Force
 Import-Module $modulePath
 
+# Install other module dependencies
+if ( !(Get-Module -ListAvailable Endjin.GitHubActions) ) {
+    Install-Module Endjin.GitHubActions -Scope CurrentUser
+}
+if ( !(Get-Module -ListAvailable Endjin.PRAutoflow) ) {
+    Install-Module Endjin.PRAutoflow -Scope CurrentUser
+}
+Import-Module Endjin.PRAutoflow
+
+# The list of NuGet packages that are superceded/replaced by the single meta-package
+$supercededPackages = @(
+            'SpecFlow'
+            'SpecFlow.NUnit'
+            'SpecFlow.Tools.MsBuild.Generation'
+            'coverlet.msbuild'
+            'Microsoft.NET.Test.Sdk'
+            'Moq'
+            'NUnit'
+            'NUnit3TestAdapter'
+        )
+
 function _getProjectFiles
 {
     Get-ChildItem -Recurse -Filter *.Specs.csproj
@@ -56,17 +77,7 @@ function _repoChanges
                                                             -PackageVersion $latestStableVersion
                                                             
         # Remove the references that are superceded by the meta package
-        $packageRefsToRemove = @(
-            'SpecFlow'
-            'SpecFlow.NUnit'
-            'SpecFlow.Tools.MsBuild.Generation'
-            'coverlet.msbuild'
-            'Microsoft.NET.Test.Sdk'
-            'Moq'
-            'NUnit'
-            'NUnit3TestAdapter'
-        )
-        foreach ($packageId in $packageRefsToRemove) {
+        foreach ($packageId in $supercededPackages) {
             $updated,$updatedProject = Remove-VsProjectPackageReference -Project $project -PackageId $packageId
             if ($updated) {
                 $repoUpdated = $true
@@ -122,6 +133,18 @@ function _main
                         -PrBody $PrBody `
                         -PrLabels "no_release" `
                         -WhatIf:$WhatIf
+
+                    # Close any PRs relating to packages now encapsulated by the meta package
+                    $resp = Invoke-GitHubRestRequest -Url "https://api.github.com/repos/$($repo.org)/$repoName/pulls?state=open"
+                    $openPrs = $resp | ConvertFrom-Json
+                    $dependabotPrs = $openPrs | Where-Object { $_.user.login -eq 'dependabot[bot]' }
+                    foreach ($pr in $dependabotPrs) {
+                        $name,$from,$to,$path = ParsePrTitle $pr.title
+                        if ($name -in $supercededPackages) {
+                            $pr | Close-GitHubPrWithComment -Comment "Closed due to this repo being migrated to the SpecFlow meta-package" `
+                                                            -WhatIf:$WhatIf
+                        }
+                    }
                 }
                 else {
                     Write-Host ("`nSkipping repo '{0}/{1}' due to 'specflowMetaPackageSettings.enabled' setting" -f $repo.org, $repoName) -f green
