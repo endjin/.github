@@ -18,3 +18,12 @@ repos:
       - Corvus.*
     specflowMetaPackageSettings:
       enabled: true
+  - org: vellum-dotnet
+    name:
+    - vellum-cli
+    prAutoflowSettings:
+      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Endjin.*
+      - Corvus.*
+    specflowMetaPackageSettings:
+      enabled: true
