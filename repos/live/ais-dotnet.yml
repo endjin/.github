@@ -1,7 +1,9 @@
 repos:
-  - org: menes-dotnet
+  - org: ais-dotnet
     name:
-    - Menes
+    - Ais.Net
+    - Ais.Net.Receiver
+    - Ais.Net.Converters
     prAutoflowSettings:
       AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
       - Endjin.*

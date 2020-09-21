@@ -9,6 +9,7 @@ repos:
       - Corvus.*
     specflowMetaPackageSettings:
       enabled: true
+    syncWorkflowTemplates: false
   - org: corvus-dotnet
     name:
     - Corvus.Retry
@@ -27,3 +28,4 @@ repos:
       - Corvus.*
     specflowMetaPackageSettings:
       enabled: true
+    syncWorkflowTemplates: true

@@ -17,3 +17,6 @@ repos:
       AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
       - Corvus.*
       - Menes.*
+    specflowMetaPackageSettings:
+      enabled: false
+    syncWorkflowTemplates: false

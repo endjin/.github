@@ -1,0 +1,35 @@
+name: deploy_workflow_templates
+on: 
+  push:
+    branches:
+    - master
+  workflow_dispatch:
+
+jobs:
+  deploy_workflow_templates:
+    runs-on: ubuntu-latest
+    name: Deploys github workflow templates to target orgs
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Install GH CLI
+        run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+          sudo apt-add-repository -u https://cli.github.com/packages
+          sudo apt install gh
+        shell: bash
+      - name: Run sync-workflow-templates.ps1
+        run: |
+          Install-Module powershell-yaml -Force
+
+          git config --global user.email "dependjinbot@endjin.com"
+          git config --global user.name "dependjinbot"
+          $credentialHelperPath = Resolve-Path ./git-credential-helper.sh
+          git config --global credential.helper "/bin/bash $($credentialHelperPath.Path)"
+          
+          ./sync-workflow-templates.ps1 -ConfigDirectory "repos/test"
+        shell: pwsh
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.DEPENDJINBOT_PRIVATE_KEY }}
+          GITHUB_APP_ID: ${{ secrets.DEPENDJINBOT_APP_ID }}

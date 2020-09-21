@@ -20,6 +20,9 @@ repos:
       - Corvus.*
       AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
       - Corvus.*
+    specflowMetaPackageSettings:
+      enabled: false
+    syncWorkflowTemplates: false
 
   - org: corvus-dotnet
     name: Corvus.Testing
@@ -30,3 +33,5 @@ repos:
       - SpecFlow.*
       AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
       - Corvus.*
+    specflowMetaPackageSettings:
+      enabled: true
