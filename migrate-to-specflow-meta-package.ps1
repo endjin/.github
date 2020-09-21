@@ -21,14 +21,16 @@ $modulePath = Join-Path $here 'Endjin.CodeOps/Endjin.CodeOps.psd1'
 Get-Module Endjin.CodeOps | Remove-Module -Force
 Import-Module $modulePath
 
-# Install other module dependencies
-if ( !(Get-Module -ListAvailable Endjin.GitHubActions) ) {
-    Install-Module Endjin.GitHubActions -Scope CurrentUser
+# Install other module dependencies that will let us parse Dependabot PR titles
+$requiredModules = @(
+    "Endjin.GitHubActions"
+    "Endjin.PRAutoflow"
+)
+$requiredModules | ForEach-Object {
+    if ( !(Get-Module -ListAvailable $_) ) {
+        Install-Module $_ -Scope CurrentUser
+    }   
 }
-if ( !(Get-Module -ListAvailable Endjin.PRAutoflow) ) {
-    Install-Module Endjin.PRAutoflow -Scope CurrentUser
-}
-Import-Module Endjin.PRAutoflow
 
 # The list of NuGet packages that are superceded/replaced by the single meta-package
 $supercededPackages = @(
@@ -141,6 +143,7 @@ function _main
                     foreach ($pr in $dependabotPrs) {
                         $name,$from,$to,$path = ParsePrTitle $pr.title
                         if ($name -in $supercededPackages) {
+                            Write-Host "Closing old Dependabot PR #$($pr.number)"
                             $pr | Close-GitHubPrWithComment -Comment "Closed due to this repo being migrated to the SpecFlow meta-package" `
                                                             -WhatIf:$WhatIf
                         }

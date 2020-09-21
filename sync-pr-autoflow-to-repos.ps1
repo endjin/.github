@@ -149,8 +149,9 @@ $repos | ForEach-Object {
         $resp = Invoke-GitHubRestRequest -Url "https://api.github.com/repos/$($repo.org)/$repoName/pulls?state=open"
         $openPrs = $resp | ConvertFrom-Json
         $openPrs | Where-Object { $_.user.login -eq 'dependabot-preview[bot]' } | ForEach-Object {
+            Write-Host "Closing old Dependabot PR #$($_.number)"
             $_ | Close-GitHubPrWithComment -Comment "Closed old Dependabot PR - repo migrated to GitHub-integrated version" `
-                                      -WhatIf:$WhatIf
+                                           -WhatIf:$WhatIf
         }
     }
 }
