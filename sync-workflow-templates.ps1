@@ -26,7 +26,7 @@ Import-Module $modulePath
 function _repoChanges
 {
     if (!(Test-Path "$pwd/workflow-templates")) {
-        mkdir "$pwd/workflow-templates"
+        New-Item -ItemType Directory "$pwd/workflow-templates"
     }
     Copy-Item $here/workflow-templates/*.* $pwd/workflow-templates -Recurse
 

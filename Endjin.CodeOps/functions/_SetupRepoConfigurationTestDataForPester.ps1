@@ -40,7 +40,7 @@ repos:
 '@
 
 $testRepoPath = Join-Path "TestDrive:" "repo"
-mkdir $testRepoPath | Out-Null
+New-Item -ItemType Directory $testRepoPath | Out-Null
 
 Set-Content -Path (Join-Path $testRepoPath "file1.yml") -Value $file1
 Set-Content -Path (Join-Path $testRepoPath "file2.yml") -Value $file2
