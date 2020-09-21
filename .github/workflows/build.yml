@@ -24,7 +24,7 @@ jobs:
         sudo apt-get install -y zlib1g
     - uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '3.1.x'
+        dotnet-version: '3.1.402'
 
     - uses: actions/checkout@v2
       with:
