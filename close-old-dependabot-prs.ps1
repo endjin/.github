@@ -3,15 +3,6 @@ param (
     [ValidateNotNullOrEmpty()]
     [string] $ConfigDirectory = (Join-Path -Resolve (Split-Path -Parent $PSCommandPath) 'repos/test'),
 
-    [ValidateNotNullOrEmpty()]
-    [string] $BranchName = "feature/sync-workflow-templates",
-
-    [ValidateNotNullOrEmpty()]
-    [string] $PrTitle = "Bump GitHub.Workflow.Templates *IGNORE-VERSIONS* from 0.0.0 to 0.0.1 in .github/workflows",
-
-    [ValidateNotNullOrEmpty()]
-    [string] $PrBody = "Syncing latest versions of github actions workflow templates",
-
     [switch] $WhatIf
 )
 $ErrorActionPreference = 'Stop'
@@ -70,19 +61,9 @@ function _main
 
                 Write-Host ("Found {0} old dependabot PRs from {1} open PRs" -f $oldDependabotPrs.Count, $openPrs.Count)
                 foreach ($pr in $oldDependabotPrs) {
-                    if (-not $WhatIf) {
-                        Write-Host "Closing PR #$($pr.number)"
-                        $resp = Invoke-GitHubRestRequest -Url $pr._links.self.href `
-                                                         -Verb PATCH `
-                                                         -Body ( @{state = 'closed'} | ConvertTo-Json -Compress )
-                        Write-Host "Adding PR comment"
-                        $resp = Invoke-GitHubRestRequest -Url $pr._links.comments.href `
-                                                         -Verb POST `
-                                                         -Body ( @{body = 'Closed old Dependabot PR after migration to GitHub-integrated version'} | ConvertTo-Json )
-                    }
-                    else {
-                        Write-Host "Would have closed PR #$($pr.number)"
-                    }
+                    Write-Host "Closing PR #$($pr.number)"
+                    $pr | Close-GitHubPrWithComment -Comment "Closed old Dependabot PR - repo migrated to GitHub-integrated version" `
+                                                    -WhatIf:$WhatIf
                 }
             }
         }
