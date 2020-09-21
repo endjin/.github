@@ -6,10 +6,10 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 
 Describe "Get-RepoConfiguration Tests" {
 
-    # setup test data
-    $testRepoPath = & "$here\_SetupRepoConfigurationTestDataForPester.ps1"
-
     Context "Local Mode" {
+
+        # setup test data
+        $testRepoPath = & "$here\..\scripts\_SetupRepoConfigurationTestDataForPester.ps1"
 
         It "should return a single repo configuration entry from an org with one repo" {
 

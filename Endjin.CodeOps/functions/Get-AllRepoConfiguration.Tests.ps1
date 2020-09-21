@@ -10,7 +10,7 @@ Describe "Get-AllRepoConfiguration Tests" {
     Context "Local Mode" {
 
         # setup test data
-        $testRepoPath = & "$here\_SetupRepoConfigurationTestDataForPester.ps1"
+        $testRepoPath = & "$here\..\scripts\_SetupRepoConfigurationTestDataForPester.ps1"
 
         It "should process the repository successfully" {
 
@@ -27,7 +27,7 @@ Describe "Get-AllRepoConfiguration Tests" {
     Context "Remote Repo Mode" {
 
       # setup test data
-      $testRepoPath = & "$here\_SetupRepoConfigurationTestDataForPester.ps1"
+      $testRepoPath = & "$here\..\scripts\_SetupRepoConfigurationTestDataForPester.ps1"
 
       It "should process the repository successfully" {
 
