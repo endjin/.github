@@ -5,8 +5,10 @@ repos:
       AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS:
       - Endjin.*
       - Corvus.*
+      - dependency-playground-lib
       AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS:
       - Corvus.*
+      - dependency-playground-lib
     specflowMetaPackageSettings:
       enabled: true
     syncWorkflowTemplates: false
