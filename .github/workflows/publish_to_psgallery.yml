@@ -40,7 +40,7 @@ jobs:
       id: get_config
       uses: endjin/pr-autoflow/actions/read-configuration@v1
       with:
-        config_file: .workflow-config.json
+        config_file: .github/config/pr-autoflow.json
   
     - run: |
         # Ensure any required modules are installed

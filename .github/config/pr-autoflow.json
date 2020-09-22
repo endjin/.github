@@ -1,4 +1,5 @@
 {
     "AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS": "[\"Endjin.*\", \"Corvus.*\"]",
-    "AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS": "[]"
+    "AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS": "[]",
+    "module_manifest_path": "./Endjin.CodeOps/Endjin.CodeOps.psd1"
 }
