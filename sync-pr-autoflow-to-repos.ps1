@@ -17,7 +17,7 @@ $modulePath = Join-Path $here 'Endjin.CodeOps/Endjin.CodeOps.psd1'
 Get-Module Endjin.CodeOps | Remove-Module -Force
 Import-Module $modulePath
 
-$repos = Get-AllRepoConfiguration $ConfigDirectory
+$repos = Get-AllRepoConfiguration -ConfigDirectory $ConfigDirectory -LocalMode
 
 Write-Host "Repo count: " $repos.Count
 

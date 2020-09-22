@@ -37,7 +37,7 @@ function _main
 {
     try {
         $repoName = '.github'
-        $repos = Get-AllRepoConfiguration -ConfigDirectory $ConfigDirectory
+        $repos = Get-AllRepoConfiguration -ConfigDirectory $ConfigDirectory -LocalMode
         foreach ($repo in $repos) {
             # When running in GitHub Actions we will need to ensure the GitHub App is
             # authenticated for the current GitHub Org
