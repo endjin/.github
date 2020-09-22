@@ -42,9 +42,20 @@ function Update-Repo {
         git clone $RepoUrl .
         if ($LASTEXITCODE -ne 0) { throw "git cli returned non-zero exit code cloning the repo - check previous log messages" }
 
-        Write-Host "Creating new branch: $BranchName"
-        git checkout -b $BranchName
-        if ($LASTEXITCODE -ne 0) { throw "git cli returned non-zero exit code checking out new branch - check previous log messages" }
+        # Check whether the branch already exists on the remote
+        if ( $(git ls-remote --heads $RepoUrl $BranchName) ) {
+            Write-Host "Checking-out existing branch: $BranchName"
+            git checkout $BranchName
+            if ($LASTEXITCODE -ne 0) { throw "git cli returned non-zero exit code checking out existing branch - check previous log messages" }
+            Write-Host "Syncing branch with master"
+            git merge master
+            if ($LASTEXITCODE -ne 0) { throw "git cli returned non-zero exit code rebasing against master - check previous log messages" }
+        }
+        else {
+            Write-Host "Creating new branch: $BranchName"
+            git checkout -b $BranchName
+            if ($LASTEXITCODE -ne 0) { throw "git cli returned non-zero exit code checking out new branch - check previous log messages" }
+        }
 
         $isUpdated = $RepoChanges.Invoke()
 
