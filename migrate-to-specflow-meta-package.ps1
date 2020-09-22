@@ -36,6 +36,7 @@ $requiredModules | ForEach-Object {
 $supercededPackages = @(
             'SpecFlow'
             'SpecFlow.NUnit'
+            'SpecFlow.NUnit.Runners'
             'SpecFlow.Tools.MsBuild.Generation'
             'coverlet.msbuild'
             'Microsoft.NET.Test.Sdk'
