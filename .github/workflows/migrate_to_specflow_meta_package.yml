@@ -18,7 +18,7 @@ jobs:
         shell: bash
       - name: Run migrate-to-specflow-meta-package.ps1
         run: |
-          Install-Module powershell-yaml -Force
+          Install-Module powershell-yaml -Force -Scope CurrentUser -Repository PSGallery
 
           git config --global user.email "dependjinbot@endjin.com"
           git config --global user.name "dependjinbot"

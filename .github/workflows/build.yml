@@ -20,7 +20,7 @@ jobs:
     steps:
     - uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '3.1.x'
+        dotnet-version: '3.1.402'
 
     - uses: actions/checkout@v2
       with:
@@ -35,4 +35,7 @@ jobs:
       id: run_gitversion
       run: |
         pwsh -noprofile -c '(dotnet-gitversion | ConvertFrom-Json).psobject.properties | % { echo ("::set-output name={0}::{1}" -f $_.name, $_.value) }'
+    - name: Display GitVersion Output
+      run: |
+        echo "MajorMinorPatch: ${{ steps.run_gitversion.outputs.MajorMinorPatch }}"
 

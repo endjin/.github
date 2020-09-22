@@ -1,4 +1,4 @@
-name: deploy_pr_autoflow
+name: deploy_workflow_templates
 on: 
   push:
     branches:
@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy_pr_autoflow:
+  deploy_workflow_templates:
     runs-on: ubuntu-latest
-    name: Deploy PR Autoflow workflows to target repos
+    name: Deploys github workflow templates to target orgs
     steps:
       - uses: actions/checkout@v2
         with:
@@ -19,7 +19,7 @@ jobs:
           sudo apt-add-repository -u https://cli.github.com/packages
           sudo apt install gh
         shell: bash
-      - name: Run sync-pr-autoflow-to-repos.ps1
+      - name: Run sync-workflow-templates.ps1
         run: |
           Install-Module powershell-yaml -Force -Scope CurrentUser -Repository PSGallery
 
@@ -28,7 +28,7 @@ jobs:
           $credentialHelperPath = Resolve-Path ./git-credential-helper.sh
           git config --global credential.helper "/bin/bash $($credentialHelperPath.Path)"
           
-          .\sync-pr-autoflow-to-repos.ps1 -ConfigDirectory "repos/test"
+          ./sync-workflow-templates.ps1 -ConfigDirectory "repos/test"
         shell: pwsh
         env:
           SSH_PRIVATE_KEY: ${{ secrets.DEPENDJINBOT_PRIVATE_KEY }}

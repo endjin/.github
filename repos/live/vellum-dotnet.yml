@@ -1,7 +1,7 @@
 repos:
-  - org: menes-dotnet
+  - org: vellum-dotnet
     name:
-    - Menes
+    - vellum-cli
     prAutoflowSettings:
       AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
       - Endjin.*
@@ -9,5 +9,5 @@ repos:
       AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS:
       - Corvus.*
     specflowMetaPackageSettings:
-      enabled: false
-    syncWorkflowTemplates: false
+      enabled: true
+    syncWorkflowTemplates: true
