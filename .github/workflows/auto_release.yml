@@ -7,6 +7,8 @@ on:
 jobs:
   check_for_norelease_label:
     runs-on: ubuntu-latest
+    if: |
+      github.event == 'pull_request'
     outputs:
       no_release: ${{ steps.check_for_norelease_label.outputs.result }}
     steps:
