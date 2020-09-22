@@ -28,7 +28,10 @@ jobs:
           $credentialHelperPath = Resolve-Path ./git-credential-helper.sh
           git config --global credential.helper "/bin/bash $($credentialHelperPath.Path)"
           
-          .\sync-pr-autoflow-to-repos.ps1 -ConfigDirectory "repos/test"
+          .\sync-pr-autoflow-to-repos.ps1 -ConfigDirectory "repos/test" `
+                                          -AddOverwriteSettings `
+                                          -ConfigureGitVersion `
+                                          -ConfigureDependabotV2
         shell: pwsh
         env:
           SSH_PRIVATE_KEY: ${{ secrets.DEPENDJINBOT_PRIVATE_KEY }}
