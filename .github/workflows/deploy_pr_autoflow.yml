@@ -1,8 +1,8 @@
 name: deploy_pr_autoflow
 on: 
-  push:
-    branches:
-    - master
+  # push:
+  #   branches:
+  #   - master
   workflow_dispatch:
 
 jobs:
