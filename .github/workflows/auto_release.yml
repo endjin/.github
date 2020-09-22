@@ -7,13 +7,13 @@ on:
 jobs:
   check_for_norelease_label:
     runs-on: ubuntu-latest
-    if: |
-      github.event == 'pull_request'
     outputs:
       no_release: ${{ steps.check_for_norelease_label.outputs.result }}
     steps:
     - name: Check for 'no_release' label on PR
       id: check_for_norelease_label
+      if: |
+        github.event == 'pull_request'
       uses: actions/github-script@v2
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -30,6 +30,8 @@ jobs:
             }
             return false
     - name: Display 'no_release' status
+      if: |
+        github.event == 'pull_request'
       run: |
         echo "no_release: ${{ steps.check_for_norelease_label.outputs.result }}"
 
