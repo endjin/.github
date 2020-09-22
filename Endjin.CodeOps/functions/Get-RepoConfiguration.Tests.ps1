@@ -11,7 +11,7 @@ Describe "Get-RepoConfiguration Tests" {
         # setup test data
         $testRepoPath = & "$here\..\scripts\_SetupRepoConfigurationTestDataForPester.ps1"
 
-        It "should return a single repo configuration entry from an org with one repo" {
+        It "should return a single repo configuration entry from an org with one configured repo" {
 
             $repo = Get-RepoConfiguration -ConfigDirectory $testRepoPath `
                                            -LocalMode `
@@ -25,7 +25,7 @@ Describe "Get-RepoConfiguration Tests" {
             $repo.name | Should -Be 'dependency-playground'
         }
 
-        It "should return a single repo configuration entry from an org with multiple repo, containing all repos in the group" {
+        It "should return a single repo configuration entry from an org with multiple configured repos" {
 
             $repo = Get-RepoConfiguration -ConfigDirectory $testRepoPath `
                                            -LocalMode `
@@ -34,10 +34,9 @@ Describe "Get-RepoConfiguration Tests" {
 
             $repo | Should -BeOfType [hashtable]
             $repo.Keys.Count | Should -Be 4
-            $repo.name.Count | Should -Be 2
+            $repo.name | Should -BeOfType [string]
             $repo.org | Should -Be 'corvus-dotnet'
-            $repo.name[0] | Should -Be 'Corvus.Retry'
-            $repo.name[1] | Should -Be 'Corvus.Leasing'
+            $repo.name | Should -Be 'Corvus.Retry'
         }
     }
 }
