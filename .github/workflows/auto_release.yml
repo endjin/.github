@@ -2,7 +2,6 @@ name: auto_release
 on: 
   pull_request:
     types: [closed]
-  workflow_dispatch:
 
 jobs:
   check_for_norelease_label:
@@ -12,8 +11,6 @@ jobs:
     steps:
     - name: Check for 'no_release' label on PR
       id: check_for_norelease_label
-      if: |
-        github.event == 'pull_request'
       uses: actions/github-script@v2
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -30,8 +27,6 @@ jobs:
             }
             return false
     - name: Display 'no_release' status
-      if: |
-        github.event == 'pull_request'
       run: |
         echo "no_release: ${{ steps.check_for_norelease_label.outputs.result }}"
 
@@ -111,9 +106,8 @@ jobs:
   tag_for_release:
     runs-on: ubuntu-latest
     needs: check_ready_to_release
-    # Ensure we can explicitly initiate a release by manually kicking-off this workflow
     if: |
-      needs.check_ready_to_release.outputs.ready_to_release == 'true' || github.event == 'workflow_dispatch'
+      needs.check_ready_to_release.outputs.ready_to_release == 'true'
     steps:
     - uses: actions/setup-dotnet@v1
       with:
