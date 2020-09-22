@@ -39,6 +39,11 @@ $repos | ForEach-Object {
     foreach ($repoName in $repo.name) {
         Write-Host "`nOrg: $($repo.org) - Repo: $($repoName)`n" -f green
 
+        Write-Host "Enabling 'delete_branch_on_merge' repo setting"
+        $resp = Invoke-GitHubRestRequest -Url "https://api.github.com/repos/$($repo.org)/$repoName" `
+                                         -Verb 'PATCH' `
+                                         -Body (@{delete_branch_on_merge=$true} | ConvertTo-Json -Compress)
+
         $repoChanges = {
             Write-Host "Adding/overwriting workflow files"
             $workflowsFolder = ".github/workflows"
