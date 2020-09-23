@@ -29,7 +29,8 @@ $requiredModules = @(
 $requiredModules | ForEach-Object {
     if ( !(Get-Module -ListAvailable $_) ) {
         Install-Module $_ -Scope CurrentUser -Repository PSGallery -Force
-    }   
+    }
+    Import-Module $_
 }
 
 # The list of NuGet packages that are superceded/replaced by the single meta-package
