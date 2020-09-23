@@ -39,18 +39,18 @@ function _main
         $repoName = '.github'
         $repos = Get-AllRepoConfiguration -ConfigDirectory $ConfigDirectory -LocalMode
         foreach ($repo in $repos) {
-            # When running in GitHub Actions we will need to ensure the GitHub App is
-            # authenticated for the current GitHub Org
-            if ($env:SSH_PRIVATE_KEY -and $env:GITHUB_APP_ID) {
-                Write-Host "Getting access token for organisation: '$($repo.org)'"
-                $accessToken = New-GitHubAppInstallationAccessToken -AppId $env:GITHUB_APP_ID `
-                                                                    -AppPrivateKey $env:SSH_PRIVATE_KEY `
-                                                                    -OrgName $repo.org
-                # gh cli authentcation uses this environment variable
-                $env:GITHUB_TOKEN = $accessToken
-            }
+            if ($repo.syncWorkflowTemplates -eq $true) {
+                # When running in GitHub Actions we will need to ensure the GitHub App is
+                # authenticated for the current GitHub Org
+                if ($env:SSH_PRIVATE_KEY -and $env:GITHUB_APP_ID) {
+                    Write-Host "Getting access token for organisation: '$($repo.org)'"
+                    $accessToken = New-GitHubAppInstallationAccessToken -AppId $env:GITHUB_APP_ID `
+                                                                        -AppPrivateKey $env:SSH_PRIVATE_KEY `
+                                                                        -OrgName $repo.org
+                    # gh cli authentcation uses this environment variable
+                    $env:GITHUB_TOKEN = $accessToken
+                }
 
-            if ($repo.syncWorkflowTemplates) {
                 Write-Host ("`nProcessing Org: {0}" -f $repo.org) -f green
 
                 Update-Repo `
@@ -62,6 +62,9 @@ function _main
                     -PrTitle $PrTitle `
                     -PrBody $PrBody `
                     -WhatIf:$WhatIf
+            }
+            else {
+                Write-Host ("`nSkipping Org: {0}" -f $repo.org) -f green
             }
         }
     }
