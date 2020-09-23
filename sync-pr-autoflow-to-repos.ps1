@@ -68,7 +68,8 @@ $repos | ForEach-Object {
                     $settings[$_] = @(,$repo.prAutoflowSettings[$_]) | ConvertTo-Json -Compress
                 }
 
-                ConvertTo-Json $settings | Out-File (New-Item ".github/config/pr-autoflow.json" -Force)
+                # To avoid un-necessary changes (due to the non-deterministic ordering in hashtables) ensure the keys are sorted before serialization
+                $settings | Sort-Object -Property Name | ConvertTo-Json | Out-File (New-Item ".github/config/pr-autoflow.json" -Force)
             }
 
             if ($ConfigureGitVersion) {
