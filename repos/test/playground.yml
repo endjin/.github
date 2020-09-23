@@ -2,7 +2,7 @@ repos:
   - org: endjin
     name: dependency-playground
     githubSettings:
-      delete_branch_on_merge: false
+      delete_branch_on_merge: true
     prAutoflowSettings:
       AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS:
       - Endjin.*
@@ -18,7 +18,7 @@ repos:
     name:
     - Corvus.Retry
     githubSettings:
-      delete_branch_on_merge: false
+      delete_branch_on_merge: true
     prAutoflowSettings:
       AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
       - Endjin.*
@@ -31,7 +31,7 @@ repos:
     name:
     - vellum-cli
     githubSettings:
-      delete_branch_on_merge: false
+      delete_branch_on_merge: true
     prAutoflowSettings:
       AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
       - Endjin.*
