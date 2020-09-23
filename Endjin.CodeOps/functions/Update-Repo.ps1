@@ -25,13 +25,15 @@ function Update-Repo {
         $env:GITHUB_TOKEN = $ghConfig."github.com".oauth_token
     }
 
-    Write-Host "Checking for 'no_release' label"
-    $resp = Ensure-GitHubLabel -OrgName $OrgName `
-                               -RepoName $RepoName `
-                               -Name 'no_release' `
-                               -Description 'Suppresses auto_release functionality' `
-                               -Color '27e8b4' `
-                               -Verbose:$False
+    if ('no_release' -in $PrLabels) {
+        Write-Host "Checking for 'no_release' label"
+        $resp = Ensure-GitHubLabel -OrgName $OrgName `
+                                -RepoName $RepoName `
+                                -Name 'no_release' `
+                                -Description 'Suppresses auto_release functionality' `
+                                -Color '27e8b4' `
+                                -Verbose:$False
+    }
 
     $tempDir = New-TemporaryDirectory
     Push-Location $tempDir.FullName
