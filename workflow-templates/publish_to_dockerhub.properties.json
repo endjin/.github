@@ -1,6 +1,6 @@
 {
     "name": "Publish Image to DockerHub",
-    "description": "A workflow template that performs the GitVersion-managed image tagging/pushing required for Endjin's standard DockerHub release process.",
+    "description": "A workflow template that performs the GitVersion-managed image tagging/pushing required for Endjin's standard DockerHub release process. See https://raw.githubusercontent.com/endjin/.github/master/workflow-templates/README.md for more details.",
     "iconName": "endjin",
     "categories": [],
     "filePatterns": []

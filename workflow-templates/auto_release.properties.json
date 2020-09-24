@@ -1,6 +1,6 @@
 {
     "name": "Automatic Release Workflow",
-    "description": "A workflow template that performs the GitVersion-managed tagging required for Endjin's standard release process - designed to be automatically triggered by Endjin-bot for appropriate release (e.g. patch/minor version increments).",
+    "description": "A workflow template that performs the GitVersion-managed tagging required for Endjin's standard release process - designed to be automatically triggered by Endjin-bot for appropriate release (e.g. patch/minor version increments). See https://raw.githubusercontent.com/endjin/.github/master/workflow-templates/README.md for more details.",
     "iconName": "endjin",
     "categories": [],
     "filePatterns": []
