@@ -17,7 +17,7 @@ $modulePath = Join-Path $here 'Endjin.CodeOps/Endjin.CodeOps.psd1'
 Get-Module Endjin.CodeOps | Remove-Module -Force
 Import-Module $modulePath
 
-$repos = Get-AllRepoConfiguration $ConfigDirectory
+$repos = Get-AllRepoConfiguration -ConfigDirectory $ConfigDirectory -LocalMode
 
 Write-Host "Repo count: " $repos.Count
 
@@ -38,6 +38,13 @@ $repos | ForEach-Object {
     # 'name' can be a YAML list for repos that share the same config settings
     foreach ($repoName in $repo.name) {
         Write-Host "`nOrg: $($repo.org) - Repo: $($repoName)`n" -f green
+
+        if ($repo.githubSettings.delete_branch_on_merge -eq $true) {
+            Write-Host "Enabling 'delete_branch_on_merge' repo setting"
+            $resp = Invoke-GitHubRestRequest -Url "https://api.github.com/repos/$($repo.org)/$repoName" `
+                                            -Verb 'PATCH' `
+                                            -Body (@{delete_branch_on_merge=$true} | ConvertTo-Json -Compress)
+        }
 
         $repoChanges = {
             Write-Host "Adding/overwriting workflow files"
@@ -61,7 +68,8 @@ $repos | ForEach-Object {
                     $settings[$_] = @(,$repo.prAutoflowSettings[$_]) | ConvertTo-Json -Compress
                 }
 
-                ConvertTo-Json $settings | Out-File (New-Item ".github/config/pr-autoflow.json" -Force)
+                # To avoid un-necessary changes (due to the non-deterministic ordering in hashtables) ensure the keys are sorted before serialization
+                $settings | Sort-Object -Property Name | ConvertTo-Json | Out-File (New-Item ".github/config/pr-autoflow.json" -Force)
             }
 
             if ($ConfigureGitVersion) {

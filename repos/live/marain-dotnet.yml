@@ -9,6 +9,8 @@ repos:
     - Marain.UserNotifications
     - Marain.KeyRotation
     - Marain.Tenancy
+    githubSettings:
+      delete_branch_on_merge: false
     prAutoflowSettings:
       AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
       - Endjin.*

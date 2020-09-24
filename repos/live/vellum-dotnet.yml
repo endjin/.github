@@ -2,12 +2,13 @@ repos:
   - org: vellum-dotnet
     name:
     - vellum-cli
+    githubSettings:
+      delete_branch_on_merge: false
     prAutoflowSettings:
       AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
       - Endjin.*
       - Corvus.*
-      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS:
-      - Corvus.*
+      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: []
     specflowMetaPackageSettings:
       enabled: true
     syncWorkflowTemplates: true

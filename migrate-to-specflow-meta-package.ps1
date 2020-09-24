@@ -29,13 +29,15 @@ $requiredModules = @(
 $requiredModules | ForEach-Object {
     if ( !(Get-Module -ListAvailable $_) ) {
         Install-Module $_ -Scope CurrentUser -Repository PSGallery -Force
-    }   
+    }
+    Import-Module $_
 }
 
 # The list of NuGet packages that are superceded/replaced by the single meta-package
 $supercededPackages = @(
             'SpecFlow'
             'SpecFlow.NUnit'
+            'SpecFlow.NUnit.Runners'
             'SpecFlow.Tools.MsBuild.Generation'
             'coverlet.msbuild'
             'Microsoft.NET.Test.Sdk'
@@ -107,7 +109,7 @@ function _repoChanges
 function _main
 {
     try {
-        $repos = Get-AllRepoConfiguration -ConfigDirectory $ConfigDirectory
+        $repos = Get-AllRepoConfiguration -ConfigDirectory $ConfigDirectory -LocalMode
         foreach ($repo in $repos) {
             # When running in GitHub Actions we will need ensure the GitHub App is
             # authenticated for the current GitHub Org
