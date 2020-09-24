@@ -1,0 +1,30 @@
+repos:
+  - org: corvus-dotnet
+    name:
+    - Corvus.Retry
+    githubSettings:
+      delete_branch_on_merge: true
+    prAutoflowSettings:
+      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Endjin.*
+      - Corvus.*
+      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Corvus.*
+    specflowMetaPackageSettings:
+      enabled: false
+    syncWorkflowTemplates: false
+
+  # Corvus.Testing auto-merges changes to SpecFlow packages
+  - org: corvus-dotnet
+    name: Corvus.Testing
+    githubSettings:
+      delete_branch_on_merge: true
+    prAutoflowSettings:
+      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Endjin.*
+      - Corvus.*
+      - SpecFlow.*
+      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Corvus.*
+    specflowMetaPackageSettings:
+      enabled: true

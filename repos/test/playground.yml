@@ -14,29 +14,3 @@ repos:
     specflowMetaPackageSettings:
       enabled: true
     syncWorkflowTemplates: false
-  - org: corvus-dotnet
-    name:
-    - Corvus.Retry
-    githubSettings:
-      delete_branch_on_merge: true
-    prAutoflowSettings:
-      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
-      - Endjin.*
-      - Corvus.*
-      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS:
-      - Corvus.*
-    specflowMetaPackageSettings:
-      enabled: true
-  - org: vellum-dotnet
-    name:
-    - vellum-cli
-    githubSettings:
-      delete_branch_on_merge: true
-    prAutoflowSettings:
-      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
-      - Endjin.*
-      - Corvus.*
-    AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: []
-    specflowMetaPackageSettings:
-      enabled: true
-    syncWorkflowTemplates: true
