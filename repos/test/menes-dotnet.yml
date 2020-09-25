@@ -1,0 +1,15 @@
+repos:
+  - org: menes-dotnet
+    name:
+    - Menes
+    githubSettings:
+      delete_branch_on_merge: true
+    prAutoflowSettings:
+      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Endjin.*
+      - Corvus.*
+      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Corvus.*
+    specflowMetaPackageSettings:
+      enabled: true
+    syncWorkflowTemplates: true
