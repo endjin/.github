@@ -48,13 +48,14 @@ $repos | ForEach-Object {
 
         $repoChanges = {
             Write-Host "Adding/overwriting workflow files"
+            $workflowTemplatesFolder = Join-Path $here "../workflow-templates" -Resolve
             $workflowsFolder = ".github/workflows"
             if (!(Test-Path $workflowsFolder)) {
                 New-Item $workflowsFolder -Force -ItemType Directory
             }
         
             @("auto_merge.yml", "auto_release.yml", "dependabot_approve_and_label.yml") | ForEach-Object {
-                $src = Join-Path $here "workflow-templates" $_
+                $src = Join-Path $workflowTemplatesFolder $_
                 $dest = Join-Path $workflowsFolder $_
                 Copy-Item $src $dest -Force
             }
