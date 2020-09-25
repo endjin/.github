@@ -39,35 +39,35 @@ function _main
 {
     try {
         $repoName = '.github'
+
         $repos = Get-AllRepoConfiguration -ConfigDirectory $ConfigDirectory -LocalMode
-        foreach ($repo in $repos) {
-            if ($repo.syncWorkflowTemplates -eq $true) {
-                # When running in GitHub Actions we will need to ensure the GitHub App is
-                # authenticated for the current GitHub Org
-                if ($env:SSH_PRIVATE_KEY -and $env:GITHUB_APP_ID) {
-                    Write-Host "Getting access token for organisation: '$($repo.org)'"
-                    $accessToken = New-GitHubAppInstallationAccessToken -AppId $env:GITHUB_APP_ID `
-                                                                        -AppPrivateKey $env:SSH_PRIVATE_KEY `
-                                                                        -OrgName $repo.org
-                    # gh cli authentcation uses this environment variable
-                    $env:GITHUB_TOKEN = $accessToken
-                }
+        # Templates are only deployed at the Org-level, so filter the repo list
+        $orgsToUpdate = [array](($repos | Where-Object { $_.syncWorkflowTemplates -eq $true }).org | Select-Object -Unique)
+        Write-Host "Orgs to process: $($orgsToUpdate.Count)`n`t$($orgsToUpdate -join "`n`t")"
 
-                Write-Host ("`nProcessing Org: {0}" -f $repo.org) -f green
+        foreach ($org in $orgsToUpdate) {
+            # When running in GitHub Actions we will need to ensure the GitHub App is
+            # authenticated for the current GitHub Org
+            if ($env:SSH_PRIVATE_KEY -and $env:GITHUB_APP_ID) {
+                Write-Host "Getting access token for organisation: '$org'"
+                $accessToken = New-GitHubAppInstallationAccessToken -AppId $env:GITHUB_APP_ID `
+                                                                    -AppPrivateKey $env:SSH_PRIVATE_KEY `
+                                                                    -OrgName $org
+                # gh cli authentcation uses this environment variable
+                $env:GITHUB_TOKEN = $accessToken
+            }
 
-                Update-Repo `
-                    -OrgName $repo.org `
-                    -RepoName $repoName `
-                    -BranchName $BranchName `
-                    -RepoChanges (Get-ChildItem function:\_repoChanges).ScriptBlock `
-                    -CommitMessage "Committing changes" `
-                    -PrTitle $PrTitle `
-                    -PrBody $PrBody `
-                    -WhatIf:$WhatIf
-            }
-            else {
-                Write-Host ("`nSkipping Org: {0}" -f $repo.org) -f green
-            }
+            Write-Host ("`nProcessing Org: {0}" -f $org) -f green
+
+            Update-Repo `
+                -OrgName $org `
+                -RepoName $repoName `
+                -BranchName $BranchName `
+                -RepoChanges (Get-ChildItem function:\_repoChanges).ScriptBlock `
+                -CommitMessage "Committing changes" `
+                -PrTitle $PrTitle `
+                -PrBody $PrBody `
+                -WhatIf:$WhatIf
         }
     }
     catch {
