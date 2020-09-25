@@ -73,6 +73,8 @@ function Update-Repo {
                     if ($output -match 'nothing to commit') {
                         $noChanges = $true
                         Write-Host "git detected no changes - skipping update"
+                        # reset $LASTEXITCODE to avoid subsequent mis-interpretation
+                        $LASTEXITCODE = 0
                     }
                     else {
                         throw "git cli returned non-zero exit code committing changes ('$LASTEXITCODE'):`n$output"
