@@ -1,0 +1,7 @@
+{
+    "name": "Manual Release Workflow",
+    "description": "A workflow template that performs the GitVersion-managed tagging required for Endjin's standard release process - designed to be manually triggered for changes not handled via pr-autoflow. See https://raw.githubusercontent.com/endjin/.github/master/workflow-templates/README.md for more details.",
+    "iconName": "endjin",
+    "categories": [],
+    "filePatterns": []
+}

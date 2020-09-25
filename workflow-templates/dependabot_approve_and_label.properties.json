@@ -1,6 +1,6 @@
 {
     "name": "Dependabot Auto-Approve and Label Workflow",
-    "description": "A workflow template that auto-approves selective Dependabot PRs and labels them for use with autosquash",
+    "description": "A workflow template that auto-approves selective Dependabot PRs and labels them for use with autosquash. See https://raw.githubusercontent.com/endjin/.github/master/workflow-templates/README.md for more details.",
     "iconName": "endjin",
     "categories": [],
     "filePatterns": []

@@ -12,7 +12,7 @@ repos:
       - Corvus.*
     specflowMetaPackageSettings:
       enabled: false
-    syncWorkflowTemplates: false
+    syncWorkflowTemplates: true
 
   # Corvus.Testing auto-merges changes to SpecFlow packages
   - org: corvus-dotnet

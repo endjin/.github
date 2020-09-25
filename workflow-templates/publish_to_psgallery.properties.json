@@ -1,6 +1,6 @@
 {
     "name": "Publish Image to PowerShell Gallery",
-    "description": "A workflow template that performs the GitVersion-managed packaging/publishing required for Endjin's standard PowerShell Gallery release process.",
+    "description": "A workflow template that performs the GitVersion-managed packaging/publishing required for Endjin's standard PowerShell Gallery release process. See https://raw.githubusercontent.com/endjin/.github/master/workflow-templates/README.md for more details.",
     "iconName": "endjin",
     "categories": [],
     "filePatterns": []
