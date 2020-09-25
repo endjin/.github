@@ -28,7 +28,7 @@ jobs:
           $credentialHelperPath = Resolve-Path ./git-credential-helper.sh
           git config --global credential.helper "/bin/bash $($credentialHelperPath.Path)"
           
-          ./sync-workflow-templates.ps1 -ConfigDirectory "repos/test"
+          ./codeops-scripts/sync-workflow-templates.ps1 -ConfigDirectory "repos/test"
         shell: pwsh
         env:
           SSH_PRIVATE_KEY: ${{ secrets.DEPENDJINBOT_PRIVATE_KEY }}

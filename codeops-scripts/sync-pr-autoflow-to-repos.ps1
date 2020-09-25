@@ -13,7 +13,7 @@ param (
 $ErrorActionPreference = 'Stop'
 
 $here = Split-Path -Parent $PSCommandPath
-$modulePath = Join-Path $here 'Endjin.CodeOps/Endjin.CodeOps.psd1'
+$modulePath = Join-Path $here '../Endjin.CodeOps/Endjin.CodeOps.psd1'
 Get-Module Endjin.CodeOps | Remove-Module -Force
 Import-Module $modulePath
 
