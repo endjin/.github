@@ -99,7 +99,7 @@ $repos | ForEach-Object {
 
                 Write-Host "Setting next-version as $majorMinor"
 
-                $gitVersionConfig = @{
+                $gitVersionConfig = [ordered]@{
                     mode = "ContinuousDeployment";
                     branches = @{
                         master = @{
@@ -116,7 +116,7 @@ $repos | ForEach-Object {
             if ($ConfigureDependabotV2) {
                 Write-Host "Adding/overwriting dependabot.yml"
 
-                $dependabotConfig = @{
+                $dependabotConfig = [ordered]@{
                     version = 2;
                     updates = @(
                         @{ 
