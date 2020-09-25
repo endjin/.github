@@ -17,8 +17,8 @@ $modulePath = Join-Path $here '../Endjin.CodeOps/Endjin.CodeOps.psd1'
 Get-Module Endjin.CodeOps | Remove-Module -Force
 Import-Module $modulePath
 
-$repos = Get-AllRepoConfiguration -ConfigDirectory $ConfigDirectory -LocalMode
-
+# The 'Where-Object' will filter out any null objects that might result from empty files
+$repos = [array](Get-AllRepoConfiguration -ConfigDirectory $ConfigDirectory -LocalMode | Where-Object { $_ })
 Write-Host "Repo count: " $repos.Count
 
 $repos | ForEach-Object {
