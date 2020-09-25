@@ -46,6 +46,8 @@ function _main
         Write-Host "Orgs to process: $($orgsToUpdate.Count)`n`t$($orgsToUpdate -join "`n`t")"
 
         foreach ($org in $orgsToUpdate) {
+            Write-Host ("`nProcessing Org: {0}" -f $org) -f green
+            
             # When running in GitHub Actions we will need to ensure the GitHub App is
             # authenticated for the current GitHub Org
             if ($env:SSH_PRIVATE_KEY -and $env:GITHUB_APP_ID) {
@@ -56,8 +58,6 @@ function _main
                 # gh cli authentcation uses this environment variable
                 $env:GITHUB_TOKEN = $accessToken
             }
-
-            Write-Host ("`nProcessing Org: {0}" -f $org) -f green
 
             Update-Repo `
                 -OrgName $org `
