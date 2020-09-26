@@ -44,6 +44,7 @@ $supercededPackages = @(
             'Moq'
             'NUnit'
             'NUnit3TestAdapter'
+            'Corvus.Testing.SpecFlow'
         )
 
 function _getProjectFiles
@@ -139,13 +140,14 @@ function _main
                         -WhatIf:$WhatIf
 
                     # Close any PRs relating to packages now encapsulated by the meta package
+                    Write-Host "Searching Dependabot PRs for packages superceded by the meta package"
                     $resp = Invoke-GitHubRestRequest -Url "https://api.github.com/repos/$($repo.org)/$repoName/pulls?state=open"
                     $openPrs = $resp | ConvertFrom-Json
                     $dependabotPrs = $openPrs | Where-Object { $_.user.login -eq 'dependabot[bot]' }
                     foreach ($pr in $dependabotPrs) {
                         $name,$from,$to,$path = ParsePrTitle $pr.title
                         if ($name -in $supercededPackages) {
-                            Write-Host "Closing old Dependabot PR #$($pr.number)"
+                            Write-Host "Closing Dependabot PR #$($pr.number)"
                             $pr | Close-GitHubPrWithComment -Comment "Closed due to this repo being migrated to the SpecFlow meta-package" `
                                                             -WhatIf:$WhatIf
                         }
