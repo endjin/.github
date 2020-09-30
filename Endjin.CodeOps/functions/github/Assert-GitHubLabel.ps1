@@ -1,4 +1,4 @@
-function Ensure-GitHubLabel
+function Assert-GitHubLabel
 {
     [CmdletBinding()]
     param (

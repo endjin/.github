@@ -27,7 +27,7 @@ function Update-Repo {
 
     if ('no_release' -in $PrLabels) {
         Write-Host "Checking for 'no_release' label"
-        $resp = Ensure-GitHubLabel -OrgName $OrgName `
+        $resp = Assert-GitHubLabel -OrgName $OrgName `
                                 -RepoName $RepoName `
                                 -Name 'no_release' `
                                 -Description 'Suppresses auto_release functionality' `
