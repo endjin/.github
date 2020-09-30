@@ -63,14 +63,13 @@ $repos | ForEach-Object {
             if ($AddOverwriteSettings) {
                 Write-Host "Adding/overwriting pr-autoflow.json settings"
 
-                $settings = @{}
-
-                $repo.prAutoflowSettings.Keys | ForEach-Object {
+                # To avoid un-necessary file changes (due to the non-deterministic ordering in hashtables) ensure the keys are ordered
+                $settings = [ordered]@{}
+                $repo.prAutoflowSettings.Keys | Sort-Object | ForEach-Object {
                     $settings[$_] = @(,$repo.prAutoflowSettings[$_]) | ConvertTo-Json -Compress
                 }
 
-                # To avoid un-necessary changes (due to the non-deterministic ordering in hashtables) ensure the keys are sorted before serialization
-                $settings | Sort-Object -Property Name | ConvertTo-Json | Out-File (New-Item ".github/config/pr-autoflow.json" -Force)
+                $settings | ConvertTo-Json | Out-File (New-Item ".github/config/pr-autoflow.json" -Force)
             }
 
             if ($ConfigureGitVersion) {
@@ -101,8 +100,8 @@ $repos | ForEach-Object {
 
                 $gitVersionConfig = [ordered]@{
                     mode = "ContinuousDeployment";
-                    branches = @{
-                        master = @{
+                    branches = [ordered]@{
+                        master = [ordered]@{
                             tag = "preview";
                             increment = "patch";
                         }
@@ -119,10 +118,10 @@ $repos | ForEach-Object {
                 $dependabotConfig = [ordered]@{
                     version = 2;
                     updates = @(
-                        @{ 
+                        [ordered]@{ 
                             "package-ecosystem" = "nuget";
                             directory = "/Solutions";
-                            schedule = @{
+                            schedule = [ordered]@{
                                 interval = "daily"
                             };
                             "open-pull-requests-limit" = 10
