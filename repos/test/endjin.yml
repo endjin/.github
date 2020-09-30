@@ -3,6 +3,7 @@ repos:
     name:
     - .github
     - Endjin.GitHubActions.PowerShell
+    - Endjin.RecommendedPractices.AzureDevopsPipelines.GitHub
     - pr-autoflow
     githubSettings:
       delete_branch_on_merge: true
