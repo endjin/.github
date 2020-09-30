@@ -82,4 +82,5 @@ function _main
 # Detect when dot sourcing the script, so we don't immediately execute anything when running Pester
 if (!$MyInvocation.Line.StartsWith('. ')) {
     _main
+    exit 0
 }
