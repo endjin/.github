@@ -6,12 +6,6 @@ param (
     [ValidateNotNullOrEmpty()]
     [string] $BranchName = "feature/sync-workflow-templates",
 
-    [ValidateNotNullOrEmpty()]
-    [string] $PrTitle = "Bump GitHub.Workflow.Templates *IGNORE-VERSIONS* from 0.0.0 to 0.0.1 in .github/workflows",
-
-    [ValidateNotNullOrEmpty()]
-    [string] $PrBody = "Syncing latest versions of github actions workflow templates",
-
     [switch] $WhatIf
 )
 $ErrorActionPreference = 'Stop'
@@ -59,14 +53,19 @@ function _main
                 $env:GITHUB_TOKEN = $accessToken
             }
 
+            # When running in GitHub the workflow will pass the current GitVersion in an environment variable
+            $to_version = [string]::IsNullOrEmpty($env:GITVERSION_NUGETVER) ? "0.0.0" : $env:GITVERSION_NUGETVER
+            # We don't yet have a way to infer the current version, so we use a dummy 'from_version'
+            $PrTitle = "Bump GitHub.Workflow.Templates from 0.0.0 to $to_version in .github/workflows"
+
             Update-Repo `
                 -OrgName $org `
                 -RepoName $repoName `
                 -BranchName $BranchName `
                 -RepoChanges (Get-ChildItem function:\_repoChanges).ScriptBlock `
-                -CommitMessage "Committing changes" `
+                -CommitMessage "Updated workflow templates" `
                 -PrTitle $PrTitle `
-                -PrBody $PrBody `
+                -PrBody "Syncing latest versions of github actions workflow templates" `
                 -WhatIf:$WhatIf
         }
     }
