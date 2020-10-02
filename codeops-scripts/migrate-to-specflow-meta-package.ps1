@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param (
     [ValidateNotNullOrEmpty()]
-    [string] $ConfigDirectory = (Join-Path -Resolve (Split-Path -Parent $PSCommandPath) 'repos/test'),
+    [string] $ConfigDirectory = (Join-Path -Resolve (Split-Path -Parent $PSCommandPath) '../repos/test'),
 
     [ValidateNotNullOrEmpty()]
     [string] $BranchName = "feature/specflow-metapackage",
@@ -17,7 +17,7 @@ param (
 $ErrorActionPreference = 'Stop'
 
 $here = Split-Path -Parent $PSCommandPath
-$modulePath = Join-Path $here 'Endjin.CodeOps/Endjin.CodeOps.psd1'
+$modulePath = Join-Path $here '../Endjin.CodeOps/Endjin.CodeOps.psd1'
 Get-Module Endjin.CodeOps | Remove-Module -Force
 Import-Module $modulePath
 
@@ -44,6 +44,7 @@ $supercededPackages = @(
             'Moq'
             'NUnit'
             'NUnit3TestAdapter'
+            'Corvus.Testing.SpecFlow'
         )
 
 function _getProjectFiles
@@ -139,13 +140,14 @@ function _main
                         -WhatIf:$WhatIf
 
                     # Close any PRs relating to packages now encapsulated by the meta package
+                    Write-Host "Searching Dependabot PRs for packages superceded by the meta package"
                     $resp = Invoke-GitHubRestRequest -Url "https://api.github.com/repos/$($repo.org)/$repoName/pulls?state=open"
                     $openPrs = $resp | ConvertFrom-Json
                     $dependabotPrs = $openPrs | Where-Object { $_.user.login -eq 'dependabot[bot]' }
                     foreach ($pr in $dependabotPrs) {
                         $name,$from,$to,$path = ParsePrTitle $pr.title
                         if ($name -in $supercededPackages) {
-                            Write-Host "Closing old Dependabot PR #$($pr.number)"
+                            Write-Host "Closing Dependabot PR #$($pr.number)"
                             $pr | Close-GitHubPrWithComment -Comment "Closed due to this repo being migrated to the SpecFlow meta-package" `
                                                             -WhatIf:$WhatIf
                         }
@@ -169,4 +171,5 @@ function _main
 # Detect when dot sourcing the script, so we don't immediately execute anything when running Pester
 if (!$MyInvocation.Line.StartsWith('. ')) {
     _main
+    exit 0
 }

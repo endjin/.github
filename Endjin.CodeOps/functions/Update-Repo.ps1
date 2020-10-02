@@ -27,7 +27,7 @@ function Update-Repo {
 
     if ('no_release' -in $PrLabels) {
         Write-Host "Checking for 'no_release' label"
-        $resp = Ensure-GitHubLabel -OrgName $OrgName `
+        $resp = Assert-GitHubLabel -OrgName $OrgName `
                                 -RepoName $RepoName `
                                 -Name 'no_release' `
                                 -Description 'Suppresses auto_release functionality' `
@@ -73,6 +73,8 @@ function Update-Repo {
                     if ($output -match 'nothing to commit') {
                         $noChanges = $true
                         Write-Host "git detected no changes - skipping update"
+                        # reset $LASTEXITCODE to avoid subsequent mis-interpretation
+                        $LASTEXITCODE = 0
                     }
                     else {
                         throw "git cli returned non-zero exit code committing changes ('$LASTEXITCODE'):`n$output"
@@ -84,11 +86,20 @@ function Update-Repo {
                     git push -u origin $BranchName
                     if ($LASTEXITCODE -ne 0) { Write-Error "git cli returned non-zero exit code when pushing branch ('$LASTEXITCODE') - check logs" }
 
-                    Write-Host "Opening new PR"
-                    $ghPrArgs = @("pr", "create", "--title", $PrTitle, "--body", $PrBody)
-                    if ($PrLabels) { $ghPrArgs += @("--label", $PrLabels) }
-                    gh @ghPrArgs
-                    if ($LASTEXITCODE -ne 0) { throw "github cli returned non-zero exit code - check previous log messages" }
+                    # Check whether this branch already has an open PR (i.e. where pr-autoflow isn't installed or after a previous failure)
+                    $existingPr = Test-GitHubPrByBranchName -OrgName $OrgName `
+                                                            -RepoName $RepoName `
+                                                            -BranchName $BranchName
+                    if (!$existingPr) {
+                        Write-Host "Opening new PR"
+                        $ghPrArgs = @("pr", "create", "--title", $PrTitle, "--body", $PrBody)
+                        if ($PrLabels) { $ghPrArgs += @("--label", $PrLabels) }
+                        gh @ghPrArgs
+                        if ($LASTEXITCODE -ne 0) { throw "github cli returned non-zero exit code - check previous log messages" }
+                    }
+                    else {
+                        Write-Host "Existing PR will be updated"
+                    }
                 }
             }
             else {

@@ -2,6 +2,8 @@ repos:
   - org: corvus-dotnet
     name:
     - Corvus.Retry
+    - .github
+    - Corvus.Deployment
     githubSettings:
       delete_branch_on_merge: true
     prAutoflowSettings:
@@ -11,7 +13,7 @@ repos:
       AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
       - Corvus.*
     specflowMetaPackageSettings:
-      enabled: false
+      enabled: true
     syncWorkflowTemplates: true
 
   # Corvus.Testing auto-merges changes to SpecFlow packages
@@ -27,4 +29,4 @@ repos:
       AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
       - Corvus.*
     specflowMetaPackageSettings:
-      enabled: true
+      enabled: false
