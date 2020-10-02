@@ -1,24 +1,24 @@
-repos:
-  - org: marain-dotnet
-    name:
-    - Marain.TenantManagement
-    - Marain.Workflow
-    - Marain.ContentManagement
-    - Marain.Claims
-    - Marain.Operations
-    - Marain.UserNotifications
-    - Marain.KeyRotation
-    - Marain.Tenancy
-    githubSettings:
-      delete_branch_on_merge: false
-    prAutoflowSettings:
-      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
-      - Endjin.*
-      - Corvus.*
-      - Menes.*
-      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
-      - Corvus.*
-      - Menes.*
-    specflowMetaPackageSettings:
-      enabled: false
-    syncWorkflowTemplates: false
+# repos:
+#   - org: marain-dotnet
+#     name:
+#     - Marain.TenantManagement
+#     - Marain.Workflow
+#     - Marain.ContentManagement
+#     - Marain.Claims
+#     - Marain.Operations
+#     - Marain.UserNotifications
+#     - Marain.KeyRotation
+#     - Marain.Tenancy
+#     githubSettings:
+#       delete_branch_on_merge: false
+#     prAutoflowSettings:
+#       AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
+#       - Endjin.*
+#       - Corvus.*
+#       - Menes.*
+#       AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
+#       - Corvus.*
+#       - Menes.*
+#     specflowMetaPackageSettings:
+#       enabled: false
+#     syncWorkflowTemplates: false

@@ -1,8 +1,9 @@
 repos:
-  - org: menes-dotnet
+  - org: endjin
     name:
-    - Menes
     - .github
+    - Endjin.GitHubActions.PowerShell
+    - pr-autoflow
     githubSettings:
       delete_branch_on_merge: true
     prAutoflowSettings:
@@ -11,5 +12,5 @@ repos:
       - Corvus.*
       AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: []
     specflowMetaPackageSettings:
-      enabled: true
-    syncWorkflowTemplates: true
+      enabled: false
+    syncWorkflowTemplates: false
