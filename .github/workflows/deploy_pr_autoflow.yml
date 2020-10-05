@@ -49,7 +49,7 @@ jobs:
           
           gci env: | fl | out-string | write-host
 
-          if (([string]::IsNullOrEmpty($env:INPUT_CONFIG_REPO)) {
+          if ([string]::IsNullOrEmpty($env:INPUT_CONFIG_REPO)) {
             #$env:INPUT_CONFIG_REPO = 'live'
             exit 1
           }
