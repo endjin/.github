@@ -93,6 +93,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: evaluate_dependabot_pr
     name: Label
+    # Don't label PRs from forked repos
+    if:
+      github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - name: Generate token
         id: generate_token
