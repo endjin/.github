@@ -1,6 +1,15 @@
 repos:
   - org: menes-dotnet
     name:
+    - .github
+    prAutoflowSettings:
+      disabled: true
+    specflowMetaPackageSettings:
+      enabled: false
+    syncWorkflowTemplates: true
+    
+  - org: menes-dotnet
+    name:
     - Menes
     githubSettings:
       delete_branch_on_merge: false
