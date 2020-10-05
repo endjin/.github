@@ -47,7 +47,7 @@ jobs:
           $credentialHelperPath = Resolve-Path ./git-credential-helper.sh
           git config --global credential.helper "/bin/bash $($credentialHelperPath.Path)"
           
-          # process and validate the supplied config repo to use
+          # process and validate the supplied config repo to use - default to 'test' if blank for some reason
           if ([string]::IsNullOrEmpty($env:CONFIG_REPO)) {
             $env:CONFIG_REPO = 'test'
           }
