@@ -8,10 +8,25 @@ repos:
       enabled: false
     syncWorkflowTemplates: true
 
-  # repos enabled for PR-AUTOFLOW, but not SpecFlow meta package
+  # repos enabled for PR-AUTOFLOW and SpecFlow meta package
   - org: corvus-dotnet
     name:
     - Corvus.AzureFunctionsKeepAlive
+    githubSettings:
+      delete_branch_on_merge: false
+    prAutoflowSettings:
+      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Endjin.*
+      - Corvus.*
+      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - Corvus.*
+    specflowMetaPackageSettings:
+      enabled: true
+    syncWorkflowTemplates: false
+
+  # repos enabled for PR-AUTOFLOW, but not SpecFlow meta package
+  - org: corvus-dotnet
+    name:
     - Corvus.Configuration
     # - Corvus.ContentHandling
     # - Corvus.DotLiquidAsync
