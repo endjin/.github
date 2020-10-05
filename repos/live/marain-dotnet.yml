@@ -7,7 +7,7 @@ repos:
     specflowMetaPackageSettings:
       enabled: false
     syncWorkflowTemplates: true
-    
+
   - org: marain-dotnet
     name:
     - Marain.Claims
@@ -19,7 +19,7 @@ repos:
     - Marain.UserNotifications
     - Marain.Workflow
     githubSettings:
-      delete_branch_on_merge: true
+      delete_branch_on_merge: false
     prAutoflowSettings:
       AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
       - Endjin.*
