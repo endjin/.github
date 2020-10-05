@@ -4,6 +4,10 @@ on:
   #   branches:
   #   - master
   workflow_dispatch:
+    inputs:
+      config_repo:
+        default: live
+        required: true
 
 jobs:
   deploy_pr_autoflow:
@@ -43,7 +47,7 @@ jobs:
           $credentialHelperPath = Resolve-Path ./git-credential-helper.sh
           git config --global credential.helper "/bin/bash $($credentialHelperPath.Path)"
           
-          ./codeops-scripts/sync-pr-autoflow-to-repos.ps1 -ConfigDirectory "repos/test" `
+          ./codeops-scripts/sync-pr-autoflow-to-repos.ps1 -ConfigDirectory "repos/$($env:INPUT_CONFIG_REPO)" `
                                           -AddOverwriteSettings `
                                           -ConfigureGitVersion `
                                           -ConfigureDependabotV2
