@@ -12,6 +12,7 @@ repos:
   - org: corvus-dotnet
     name:
     - Corvus.AzureFunctionsKeepAlive
+    - Corvus.Configuration
     githubSettings:
       delete_branch_on_merge: false
     prAutoflowSettings:
@@ -27,7 +28,6 @@ repos:
   # repos enabled for PR-AUTOFLOW, but not SpecFlow meta package
   - org: corvus-dotnet
     name:
-    - Corvus.Configuration
     # - Corvus.ContentHandling
     # - Corvus.DotLiquidAsync
     - Corvus.EventStore
