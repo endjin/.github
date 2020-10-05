@@ -47,17 +47,17 @@ jobs:
           $credentialHelperPath = Resolve-Path ./git-credential-helper.sh
           git config --global credential.helper "/bin/bash $($credentialHelperPath.Path)"
           
-          gci env: | fl | out-string | write-host
-
-
-
+          # process and validate the supplied config repo to use
           if ([string]::IsNullOrEmpty($env:CONFIG_REPO)) {
-            #$env:INPUT_CONFIG_REPO = 'live'
-            exit 1
+            $env:CONFIG_REPO = 'test'
           }
           $repoPath = "repos/$($env:CONFIG_REPO)"
+          if (!(Test-Path $repoPath)) {
+            Write-Error "Could not find config repo path: $repoPath"
+            exit 1
+          }
 
-          ./codeops-scripts/sync-pr-autoflow-to-repos.ps1 -ConfigDirectory  `
+          ./codeops-scripts/sync-pr-autoflow-to-repos.ps1 -ConfigDirectory $repoPath `
                                           -AddOverwriteSettings `
                                           -ConfigureGitVersion `
                                           -ConfigureDependabotV2
