@@ -47,7 +47,15 @@ jobs:
           $credentialHelperPath = Resolve-Path ./git-credential-helper.sh
           git config --global credential.helper "/bin/bash $($credentialHelperPath.Path)"
           
-          ./codeops-scripts/sync-pr-autoflow-to-repos.ps1 -ConfigDirectory "repos/$($env:INPUT_CONFIG_REPO)" `
+          gci env: | fl | out-string | write-host
+
+          if (([string]::IsNullOrEmpty($env:INPUT_CONFIG_REPO)) {
+            #$env:INPUT_CONFIG_REPO = 'live'
+            exit 1
+          }
+          $repoPath = "repos/$($env:INPUT_CONFIG_REPO)"
+
+          ./codeops-scripts/sync-pr-autoflow-to-repos.ps1 -ConfigDirectory  `
                                           -AddOverwriteSettings `
                                           -ConfigureGitVersion `
                                           -ConfigureDependabotV2
