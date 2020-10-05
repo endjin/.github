@@ -1,19 +1,31 @@
 repos:
   - org: corvus-dotnet
     name:
+    - .github
+    prAutoflowSettings:
+      disabled: true
+    specflowMetaPackageSettings:
+      enabled: false
+    syncWorkflowTemplates: true
+
+  # repos enabled for PR-AUTOFLOW, but not SpecFlow meta package
+  - org: corvus-dotnet
+    name:
     - Corvus.AzureFunctionsKeepAlive
-    - Corvus.Extensions.System.Text.Json
-    - Corvus.Monitoring
-    - Corvus.Retry
-    - Corvus.Identity
+    - Corvus.Configuration
+    # - Corvus.ContentHandling
+    # - Corvus.DotLiquidAsync
+    - Corvus.EventStore
+    - Corvus.Extensions
+    # - Corvus.Extensions.CommandLine
     - Corvus.Extensions.CosmosDb
     - Corvus.Extensions.Newtonsoft.Json
-    - Corvus.Extensions
+    - Corvus.Extensions.System.Text.Json
+    - Corvus.Identity
     - Corvus.Leasing
-    - Corvus.Configuration
-    - Corvus.EventStore
-    - Corvus.DotLiquidAsync
-    - Corvus.Tenancy
+    - Corvus.Monitoring
+    - Corvus.Retry
+    - Corvus.Tenancy    
     githubSettings:
       delete_branch_on_merge: false
     prAutoflowSettings:
@@ -26,7 +38,7 @@ repos:
       enabled: false
     syncWorkflowTemplates: false
 
-  # Corvus.Testing auto-merges changes to SpecFlow packages
+  # Corvus.Testing has custom PR-AUTOFLOW: auto-merges changes to SpecFlow packages
   - org: corvus-dotnet
     name: Corvus.Testing
     githubSettings:
@@ -40,3 +52,4 @@ repos:
       - Corvus.*
     specflowMetaPackageSettings:
       enabled: true
+    syncWorkflowTemplates: false

@@ -1,6 +1,15 @@
 repos:
   - org: ais-dotnet
     name:
+    - .github
+    prAutoflowSettings:
+      disabled: true
+    specflowMetaPackageSettings:
+      enabled: false
+    syncWorkflowTemplates: true
+    
+  - org: ais-dotnet
+    name:
     - Ais.Net
     - Ais.Net.Receiver
     - Ais.Net.Converters

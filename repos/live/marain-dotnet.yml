@@ -1,14 +1,23 @@
 repos:
   - org: marain-dotnet
     name:
-    - Marain.TenantManagement
-    - Marain.Workflow
-    - Marain.ContentManagement
+    - .github
+    prAutoflowSettings:
+      disabled: true
+    specflowMetaPackageSettings:
+      enabled: false
+    syncWorkflowTemplates: true
+
+  - org: marain-dotnet
+    name:
     - Marain.Claims
-    - Marain.Operations
-    - Marain.UserNotifications
+    - Marain.ContentManagement
     - Marain.KeyRotation
+    - Marain.Operations
     - Marain.Tenancy
+    - Marain.TenantManagement
+    - Marain.UserNotifications
+    - Marain.Workflow
     githubSettings:
       delete_branch_on_merge: false
     prAutoflowSettings:

@@ -4,6 +4,10 @@ on:
   #   branches:
   #   - master
   workflow_dispatch:
+    inputs:
+      config_repo:
+        default: live
+        required: true
 
 jobs:
   deploy_workflow_templates:
@@ -43,9 +47,19 @@ jobs:
           $credentialHelperPath = Resolve-Path ./git-credential-helper.sh
           git config --global credential.helper "/bin/bash $($credentialHelperPath.Path)"
           
-          ./codeops-scripts/sync-workflow-templates.ps1 -ConfigDirectory "repos/test"
+          # process and validate the supplied config repo to use - default to 'test' if blank for some reason
+          if ([string]::IsNullOrEmpty($env:CONFIG_REPO)) {
+            $env:CONFIG_REPO = 'test'
+          }
+          $repoPath = "repos/$($env:CONFIG_REPO)"
+          if (!(Test-Path $repoPath)) {
+            Write-Error "Could not find config repo path: $repoPath"
+            exit 1
+          }
+          ./codeops-scripts/sync-workflow-templates.ps1 -ConfigDirectory $repoPath
         shell: pwsh
         env:
           SSH_PRIVATE_KEY: ${{ secrets.DEPENDJINBOT_PRIVATE_KEY }}
           GITHUB_APP_ID: ${{ secrets.DEPENDJINBOT_APP_ID }}
           GITVERSION_NUGETVER: ${{ steps.run_gitversion.outputs.nuGetVersionV2 }}
+          CONFIG_REPO: ${{ github.event.inputs.config_repo }}

@@ -1,6 +1,15 @@
 repos:
   - org: vellum-dotnet
     name:
+    - .github
+    prAutoflowSettings:
+      disabled: true
+    specflowMetaPackageSettings:
+      enabled: false
+    syncWorkflowTemplates: true
+
+  - org: vellum-dotnet
+    name:
     - vellum-cli
     githubSettings:
       delete_branch_on_merge: false
@@ -11,4 +20,4 @@ repos:
       AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: []
     specflowMetaPackageSettings:
       enabled: true
-    syncWorkflowTemplates: true
+    syncWorkflowTemplates: false
