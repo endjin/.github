@@ -12,7 +12,7 @@ repos:
     name:
     - Marain.Claims
     - Marain.ContentManagement
-    - Marain.KeyRotation
+    # - Marain.KeyRotation   # temporarily disabled due to default branch not being 'master'
     - Marain.Operations
     - Marain.Tenancy
     - Marain.TenantManagement
