@@ -13,9 +13,17 @@ $ErrorActionPreference = 'Stop'
 Import-Module powershell-yaml
 
 $here = Split-Path -Parent $PSCommandPath
-$modulePath = Join-Path $here '../Endjin.CodeOps/Endjin.CodeOps.psd1'
-Get-Module Endjin.CodeOps | Remove-Module -Force
-Import-Module $modulePath
+
+# Install other module dependencies
+$requiredModules = @(
+    "Endjin.CodeOps"
+)
+$requiredModules | ForEach-Object {
+    if ( !(Get-Module -ListAvailable $_) ) {
+        Install-Module $_ -Scope CurrentUser -Repository PSGallery -Force
+    }
+    Import-Module $_ -Force
+}
 
 function _repoChanges
 {

@@ -17,20 +17,18 @@ param (
 $ErrorActionPreference = 'Stop'
 
 $here = Split-Path -Parent $PSCommandPath
-$modulePath = Join-Path $here '../Endjin.CodeOps/Endjin.CodeOps.psd1'
-Get-Module Endjin.CodeOps | Remove-Module -Force
-Import-Module $modulePath
 
-# Install other module dependencies that will let us parse Dependabot PR titles
+# Install other module dependencies
 $requiredModules = @(
     "Endjin.GitHubActions"
     "Endjin.PRAutoflow"
+    "Endjin.CodeOps"
 )
 $requiredModules | ForEach-Object {
     if ( !(Get-Module -ListAvailable $_) ) {
         Install-Module $_ -Scope CurrentUser -Repository PSGallery -Force
     }
-    Import-Module $_
+    Import-Module $_ -Force
 }
 
 # The list of NuGet packages that are superceded/replaced by the single meta-package

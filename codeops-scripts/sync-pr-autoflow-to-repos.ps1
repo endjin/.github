@@ -13,9 +13,17 @@ param (
 $ErrorActionPreference = 'Stop'
 
 $here = Split-Path -Parent $PSCommandPath
-$modulePath = Join-Path $here '../Endjin.CodeOps/Endjin.CodeOps.psd1'
-Get-Module Endjin.CodeOps | Remove-Module -Force
-Import-Module $modulePath
+
+# Install other module dependencies
+$requiredModules = @(
+    "Endjin.CodeOps"
+)
+$requiredModules | ForEach-Object {
+    if ( !(Get-Module -ListAvailable $_) ) {
+        Install-Module $_ -Scope CurrentUser -Repository PSGallery -Force
+    }
+    Import-Module $_ -Force
+}
 
 function _repoChanges
 {
@@ -70,10 +78,13 @@ function _repoChanges
 
         Write-Host "Setting next-version as $majorMinor"
 
+        $defaultBranch = Get-GitHubRepoDefaultBranch -OrgName $OrgName -RepoName $RepoName
+
         $gitVersionConfig = [ordered]@{
             mode = "ContinuousDeployment";
             branches = [ordered]@{
                 master = [ordered]@{
+                    regex = "^{0}" -f $defaultBranch
                     tag = "preview";
                     increment = "patch";
                 }

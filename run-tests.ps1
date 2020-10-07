@@ -12,15 +12,15 @@ try {
     # Handle any module pre-reqs
     $requiredModules = @(
         'powershell-yaml'
+        'Endjin.CodeOps'
     )
     $requiredModules | ForEach-Object {
         if (!(Get-Module -ListAvailable $_) ) {
             Install-Module $_ -Force -Scope CurrentUser -Repository PSGallery
         }
+        Import-Module $_ -Force
     }
 
-    # Ensure we don't have an old version of the module already loaded
-    Get-Module Endjin.CodeOps | Remove-Module -Force
     $results = Invoke-Pester $here -PassThru
 
 
