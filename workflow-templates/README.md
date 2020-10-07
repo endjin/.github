@@ -68,7 +68,7 @@ The workflow requires a JSON configuration file stored in `.github/config/ps-mod
 
 ```
 {
-    "module_manifest_path": "./Endjin.CodeOps/Endjin.CodeOps.psd1"
+    "module_manifest_path": "./MyModule/MyModule.psd1"
 }
 ```
 The following secrets are required:
