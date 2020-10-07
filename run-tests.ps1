@@ -18,7 +18,6 @@ try {
         if (!(Get-Module -ListAvailable $_) ) {
             Install-Module $_ -Force -Scope CurrentUser -Repository PSGallery
         }
-        Import-Module $_ -Force
     }
 
     $results = Invoke-Pester $here -PassThru
