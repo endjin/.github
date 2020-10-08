@@ -13,6 +13,8 @@ repos:
     name:
     - Corvus.AzureFunctionsKeepAlive
     - Corvus.Configuration
+    - Corvus.Extensions
+    - Corvus.Extensions.Newtonsoft.Json
     githubSettings:
       delete_branch_on_merge: false
     prAutoflowSettings:
@@ -31,10 +33,8 @@ repos:
     # - Corvus.ContentHandling
     # - Corvus.DotLiquidAsync
     - Corvus.EventStore
-    - Corvus.Extensions
     # - Corvus.Extensions.CommandLine
     - Corvus.Extensions.CosmosDb
-    - Corvus.Extensions.Newtonsoft.Json
     - Corvus.Extensions.System.Text.Json
     - Corvus.Identity
     - Corvus.Leasing
