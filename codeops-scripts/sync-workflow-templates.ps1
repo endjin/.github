@@ -22,7 +22,6 @@ $requiredModules | ForEach-Object {
     if ( !(Get-Module -ListAvailable $_) ) {
         Install-Module $_ -Scope CurrentUser -Repository PSGallery -Force
     }
-    Import-Module $_ -Force
 }
 
 function _repoChanges

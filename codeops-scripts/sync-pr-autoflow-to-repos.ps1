@@ -22,10 +22,9 @@ $requiredModules | ForEach-Object {
     if ( !(Get-Module -ListAvailable $_) ) {
         Install-Module $_ -Scope CurrentUser -Repository PSGallery -Force
     }
-    Import-Module $_ -Force
 }
 
-function _repoChanges
+function _repoChanges($OrgName, $RepoName)
 {
     Write-Host "Adding/overwriting workflow files"
     $workflowTemplatesFolder = Join-Path $here "../workflow-templates" -Resolve
@@ -171,6 +170,7 @@ function _main
                         -RepoName $repoName `
                         -BranchName $BranchName `
                         -RepoChanges (Get-ChildItem function:\_repoChanges).ScriptBlock `
+                        -RepoChangesArguments @($repo.org, $repoName) `
                         -WhatIf:$WhatIf `
                         -CommitMessage "Committing changes" `
                         -PrTitle $prTitle `
