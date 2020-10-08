@@ -13,11 +13,19 @@ param (
 $ErrorActionPreference = 'Stop'
 
 $here = Split-Path -Parent $PSCommandPath
-$modulePath = Join-Path $here '../Endjin.CodeOps/Endjin.CodeOps.psd1'
-Get-Module Endjin.CodeOps | Remove-Module -Force
-Import-Module $modulePath
 
-function _repoChanges
+# Install other module dependencies
+$requiredModules = @(
+    "Endjin.CodeOps"
+)
+$requiredModules | ForEach-Object {
+    if ( !(Get-Module -ListAvailable $_) ) {
+        Install-Module $_ -Scope CurrentUser -Repository PSGallery -Force
+    }
+    Import-Module $_
+}
+
+function _repoChanges($OrgName, $RepoName)
 {
     Write-Host "Adding/overwriting workflow files"
     $workflowTemplatesFolder = Join-Path $here "../workflow-templates" -Resolve
@@ -70,10 +78,13 @@ function _repoChanges
 
         Write-Host "Setting next-version as $majorMinor"
 
+        $defaultBranch = Get-GitHubRepoDefaultBranch -OrgName $OrgName -RepoName $RepoName
+
         $gitVersionConfig = [ordered]@{
             mode = "ContinuousDeployment";
             branches = [ordered]@{
                 master = [ordered]@{
+                    regex = "^{0}" -f $defaultBranch
                     tag = "preview";
                     increment = "patch";
                 }
@@ -160,6 +171,7 @@ function _main
                         -RepoName $repoName `
                         -BranchName $BranchName `
                         -RepoChanges (Get-ChildItem function:\_repoChanges).ScriptBlock `
+                        -RepoChangesArguments @($repo.org, $repoName) `
                         -WhatIf:$WhatIf `
                         -CommitMessage "Committing changes" `
                         -PrTitle $prTitle `
