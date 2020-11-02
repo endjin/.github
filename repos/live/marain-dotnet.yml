@@ -13,6 +13,7 @@ repos:
     - Marain.Claims
     - Marain.ContentManagement
     # - Marain.KeyRotation   # temporarily disabled due to default branch not being 'master'
+    - Marain.Instance
     - Marain.Operations
     - Marain.Tenancy
     - Marain.TenantManagement
