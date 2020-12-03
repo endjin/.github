@@ -93,7 +93,6 @@ function _main
     if ($failedRepos.Count -gt 0) {
         $ErrorActionPreference = "Continue"
         $errorMessage = "The following repositories reported errors during processing:`n{0}" -f ($failedRepos -join "`n")
-        Log-Error -Message $errorMessage
         Write-Error $errorMessage
         exit 1
     }
