@@ -79,7 +79,7 @@ function _main
         }
         catch {
             # Track the failed repo, before continuing with the rest
-            $failedRepoName = '{0}/{1}' -f $repo.org, $repoName
+            $failedRepoName = '{0}/{1}' -f $org, $repoName
             $failedRepos += $failedRepoName
             $ErrorActionPreference = "Continue"
             $errorMessage = "Processing the repository '$failedRepoName' reported the following error: $($_.Exception.Message)"
