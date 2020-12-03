@@ -3,7 +3,8 @@ repos:
     name:
     - .github
     prAutoflowSettings:
-      disabled: true
+      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
+      - GitHub.Workflow.Templates
     specflowMetaPackageSettings:
       enabled: false
     syncWorkflowTemplates: true
