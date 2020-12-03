@@ -122,12 +122,14 @@ function _repoChanges($OrgName, $RepoName)
 }
 function _main
 {
-    try {
-        # The 'Where-Object' will filter out any null objects that might result from empty files
-        $repos = [array](Get-AllRepoConfiguration -ConfigDirectory $ConfigDirectory -LocalMode | Where-Object { $_ })
-        Write-Host "Repo count: " $repos.Count
+    # The 'Where-Object' will filter out any null objects that might result from empty files
+    $repos = [array](Get-AllRepoConfiguration -ConfigDirectory $ConfigDirectory -LocalMode | Where-Object { $_ })
+    Write-Host "Repo count: " $repos.Count
 
-        $repos | ForEach-Object {
+    $failedRepos = @()
+    
+    $repos | ForEach-Object {
+        try {
             $repo = $_
 
             # When running in GitHub Actions we will need ensure the GitHub App is
@@ -189,12 +191,25 @@ function _main
                 }
             }
         }
+        catch {
+            # Track the failed repo, before continuing with the rest
+            $failedRepoName = '{0}/{1}' -f $repo.org, $repoName
+            $failedRepos += $failedRepoName
+            $ErrorActionPreference = "Continue"
+            $errorMessage = "Processing the repository '$failedRepoName' reported the following error: $($_.Exception.Message)"
+            Log-Error $errorMessage
+            Write-Error $errorMessage
+            Write-Warning $_.ScriptStackTrace
+            Write-Warning "Processing of remaining repositories will continue"
+            $ErrorActionPreference = "Stop"
+        }
     }
-    catch {
-        $ErrorActionPreference = 'Continue'
-        Write-Host "Error: $($_.Exception.Message)"
-        Write-Warning $_.ScriptStackTrace
-        Write-Error $_.Exception.Message
+
+    if ($failedRepos.Count -gt 0) {
+        $ErrorActionPreference = "Continue"
+        $errorMessage = "The following repositories reported errors during processing:`n{0}" -f ($failedRepos -join "`n")
+        Log-Error $errorMessage
+        Write-Error $errorMessage
         exit 1
     }
 }
