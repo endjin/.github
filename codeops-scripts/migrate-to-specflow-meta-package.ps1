@@ -164,7 +164,7 @@ function _main
             $failedRepos += $failedRepoName
             $ErrorActionPreference = "Continue"
             $errorMessage = "Processing the repository '$failedRepoName' reported the following error: $($_.Exception.Message)"
-            Log-Error $errorMessage
+            Log-Error -Message $errorMessage
             Write-Error $errorMessage
             Write-Warning $_.ScriptStackTrace
             Write-Warning "Processing of remaining repositories will continue"
@@ -175,7 +175,7 @@ function _main
     if ($failedRepos.Count -gt 0) {
         $ErrorActionPreference = "Continue"
         $errorMessage = "The following repositories reported errors during processing:`n{0}" -f ($failedRepos -join "`n")
-        Log-Error $errorMessage
+        Log-Error -Message $errorMessage
         Write-Error $errorMessage
         exit 1
     }
