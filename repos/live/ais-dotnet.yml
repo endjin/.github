@@ -22,5 +22,5 @@ repos:
       AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS:
       - Corvus.*
     specflowMetaPackageSettings:
-      enabled: false
+      enabled: true
     syncWorkflowTemplates: false
