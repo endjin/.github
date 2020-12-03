@@ -162,10 +162,11 @@ function _main
             # Track the failed repo, before continuing with the rest
             $failedRepoName = '{0}/{1}' -f $repo.org, $repoName
             $failedRepos += $failedRepoName
-            WRite-Warning "The repository '$failedRepoName' reporting the following error:"
-            Write-Warning $_.Exception.Message
+            $ErrorActionPreference = "Continue"
+            Write-Error "Processing the repository '$failedRepoName' reported the following error: $($_.Exception.Message)"
             Write-Warning $_.ScriptStackTrace
             Write-Warning "Processing of remaining repositories will continue"
+            $ErrorActionPreference = "Stop"
         }
     }
 

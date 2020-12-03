@@ -39,15 +39,15 @@ function _repoChanges
 
 function _main
 {
-    try {
-        $repoName = '.github'
+    $failedRepos = @()
+    $repoName = '.github'
+    $repos = Get-AllRepoConfiguration -ConfigDirectory $ConfigDirectory -LocalMode
+    # Templates are only deployed at the Org-level, so filter the repo list
+    $orgsToUpdate = [array](($repos | Where-Object { $_.syncWorkflowTemplates -eq $true }).org | Select-Object -Unique)
+    Write-Host "Orgs to process: $($orgsToUpdate.Count)`n`t$($orgsToUpdate -join "`n`t")"
 
-        $repos = Get-AllRepoConfiguration -ConfigDirectory $ConfigDirectory -LocalMode
-        # Templates are only deployed at the Org-level, so filter the repo list
-        $orgsToUpdate = [array](($repos | Where-Object { $_.syncWorkflowTemplates -eq $true }).org | Select-Object -Unique)
-        Write-Host "Orgs to process: $($orgsToUpdate.Count)`n`t$($orgsToUpdate -join "`n`t")"
-
-        foreach ($org in $orgsToUpdate) {
+    foreach ($org in $orgsToUpdate) {
+        try {
             Write-Host ("`nProcessing Org: {0}" -f $org) -f green
             
             # When running in GitHub Actions we will need to ensure the GitHub App is
@@ -76,12 +76,21 @@ function _main
                 -PrBody "Syncing latest versions of github actions workflow templates" `
                 -WhatIf:$WhatIf
         }
+        catch {
+            # Track the failed repo, before continuing with the rest
+            $failedRepoName = '{0}/{1}' -f $repo.org, $repoName
+            $failedRepos += $failedRepoName
+            $ErrorActionPreference = "Continue"
+            Write-Error "Processing the repository '$failedRepoName' reported the following error: $($_.Exception.Message)"
+            Write-Warning $_.ScriptStackTrace
+            Write-Warning "Processing of remaining repositories will continue"
+            $ErrorActionPreference = "Stop"
+        }
     }
-    catch {
-        $ErrorActionPreference = 'Continue'
-        Write-Host "Error: $($_.Exception.Message)"
-        Write-Warning $_.ScriptStackTrace
-        Write-Error $_.Exception.Message
+
+    if ($failedRepos.Count -gt 0) {
+        $ErrorActionPreference = "Continue"
+        Write-Error ("The following repositories reported errors during processing:`n{0}" -f ($failedRepos -join "`n"))
         exit 1
     }
 }
