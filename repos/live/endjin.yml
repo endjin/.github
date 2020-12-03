@@ -3,6 +3,7 @@ repos:
     name:
     - Endjin.GitHubActions.PowerShell 
     - Endjin.CodeOps.PowerShell
+    - modern-data-platform
     githubSettings:
       delete_branch_on_merge: true
     prAutoflowSettings:
