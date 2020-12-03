@@ -107,9 +107,11 @@ function _repoChanges
 
 function _main
 {
-    try {
-        $repos = Get-AllRepoConfiguration -ConfigDirectory $ConfigDirectory -LocalMode
-        foreach ($repo in $repos) {
+    $failedRepos = @()
+
+    $repos = Get-AllRepoConfiguration -ConfigDirectory $ConfigDirectory -LocalMode
+    foreach ($repo in $repos) {
+        try {
             # When running in GitHub Actions we will need ensure the GitHub App is
             # authenticated for the current GitHub Org
             if ($env:SSH_PRIVATE_KEY -and $env:GITHUB_APP_ID) {
@@ -156,12 +158,24 @@ function _main
                 }
             }
         }
+        catch {
+            # Track the failed repo, before continuing with the rest
+            $failedRepoName = '{0}/{1}' -f $repo.org, $repoName
+            $failedRepos += $failedRepoName
+            $ErrorActionPreference = "Continue"
+            $errorMessage = "Processing the repository '$failedRepoName' reported the following error: $($_.Exception.Message)"
+            Log-Error -Message $errorMessage
+            Write-Error $errorMessage
+            Write-Warning $_.ScriptStackTrace
+            Write-Warning "Processing of remaining repositories will continue"
+            $ErrorActionPreference = "Stop"
+        }
     }
-    catch {
-        $ErrorActionPreference = 'Continue'
-        Write-Host "Error: $($_.Exception.Message)"
-        Write-Warning $_.ScriptStackTrace
-        Write-Error $_.Exception.Message
+
+    if ($failedRepos.Count -gt 0) {
+        $ErrorActionPreference = "Continue"
+        $errorMessage = "The following repositories reported errors during processing:`n{0}" -f ($failedRepos -join "`n")
+        Write-Error $errorMessage
         exit 1
     }
 }
