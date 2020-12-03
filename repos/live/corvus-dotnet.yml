@@ -18,7 +18,7 @@ repos:
     - Corvus.DotLiquidAsync
     - Corvus.EventStore
     - Corvus.Extensions
-    - Corvus.Extensions.CommandLine       # this repo is archived
+    # - Corvus.Extensions.CommandLine       # this repo is archived
     - Corvus.Extensions.CosmosDb
     - Corvus.Extensions.Newtonsoft.Json
     - Corvus.Extensions.System.Text.Json
