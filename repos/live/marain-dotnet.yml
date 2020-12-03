@@ -12,7 +12,7 @@ repos:
     name:
     - Marain.Claims
     - Marain.ContentManagement
-    # - Marain.KeyRotation   # temporarily disabled due to default branch not being 'master'
+    - Marain.KeyRotation
     - Marain.Instance
     - Marain.Operations
     - Marain.Tenancy
@@ -30,5 +30,5 @@ repos:
       - Corvus.*
       - Menes.*
     specflowMetaPackageSettings:
-      enabled: false
+      enabled: true
     syncWorkflowTemplates: false
