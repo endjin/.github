@@ -16,6 +16,7 @@ $here = Split-Path -Parent $PSCommandPath
 
 # Install other module dependencies
 $requiredModules = @(
+    "Endjin.GitHubActions"
     "Endjin.CodeOps"
 )
 $requiredModules | ForEach-Object {
