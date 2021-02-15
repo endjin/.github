@@ -59,14 +59,13 @@ function _getAllOrgReposWithDefaults {
     return $reposToProcess
 }
 function _getAllOrgs {
-    # returns all the orgs that we want included in this process
-    @(
-        "ais-dotnet"
-        "corvus-dotnet"
-        "marain-dotnet"
-        "menes-dotnet"
-        "vellum-dotnet"
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$true)]
+        $YamlConfig
     )
+    
+    return ($YamlConfig.org | Select-Object -Unique)
 }
 function _mergeSettingsOverrides {
     [CmdletBinding()]
@@ -76,7 +75,7 @@ function _mergeSettingsOverrides {
         [hashtable[]] $RepoOverrides,
 
         [Parameter(Mandatory = $true)]
-        [hashtable] $RepoDefaults
+        [hashtable[]] $RepoDefaults
     )
 
     # Check each repo in the overrides collection and apply any overriden
@@ -85,10 +84,13 @@ function _mergeSettingsOverrides {
     $RepoOverrides | Where-Object { $_ } | `
         Where-Object { $_.ContainsKey("githubSettings") } | `
         ForEach-Object {
-            $settings = $_.githubSettings
-            $repoName = $_.name
-            $settings.Keys | ForEach-Object {
-                $RepoDefaults[$repoName].$_ = $settings[$_]
+            $settingOverrides = $_.githubSettings
+            # A single override config entry could reference multiple repos
+            $_.name | ForEach-Object {
+                $repoName = $_
+                $settingOverrides.Keys | ForEach-Object {
+                    $RepoDefaults.$repoName[$_] = $settingOverrides[$_]
+                }
             }
         }
 
@@ -102,7 +104,7 @@ function _processOrg {
 
         [Parameter(Mandatory = $true)]
         [AllowNull()]
-        [hashtable] $RepoConfig
+        [hashtable[]] $RepoConfig
     )
 
     # get a collection of all repos in the org, intially configure the default policy settings for each repo
@@ -147,7 +149,7 @@ function _main {
     $reposFromYaml = [array](Get-AllRepoConfiguration -ConfigDirectory $ConfigDirectory -LocalMode | Where-Object { $_ })
 
     # Read all the repos across our orgs
-    $allOrgs = _getAllOrgs
+    $allOrgs = _getAllOrgs $reposFromYaml
 
     $script:failedRepos = @()   
     foreach ($org in $allOrgs) {
@@ -163,7 +165,7 @@ function _main {
                 $env:GITHUB_TOKEN = $accessToken
             }
 
-            $orgRepoConfigs = $reposFromYaml | Where-Object { $_.org -eq $org }
+            [array]$orgRepoConfigs = $reposFromYaml | Where-Object { $_.org -eq $org }
             _processOrg -Org $org -RepoConfig $orgRepoConfigs
         }
         catch {
