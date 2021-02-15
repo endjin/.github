@@ -148,13 +148,6 @@ function _main
             foreach ($repoName in $repo.name) {
                 Write-Host "`nOrg: $($repo.org) - Repo: $($repoName)`n" -f green
 
-                if ($repo.githubSettings.delete_branch_on_merge -eq $true) {
-                    Write-Host "Enabling 'delete_branch_on_merge' repo setting"
-                    $resp = Invoke-GitHubRestRequest -Url "https://api.github.com/repos/$($repo.org)/$repoName" `
-                                                    -Verb 'PATCH' `
-                                                    -Body (@{delete_branch_on_merge=$true} | ConvertTo-Json -Compress)
-                }
-
                 $prLabels = @("no_release")
 
                 # When running in GitHub the workflow will pass the current GitVersion in an environment variable
