@@ -1,5 +1,12 @@
 #Requires -Modules @{ ModuleName="powershell-yaml"; ModuleVersion="0.4.2" }
 
+#
+# This script is responsible for ensuring all GitHub repositories are
+# configured as per a policy of defined repository settings.
+#
+# For example, enforcing a branch protection.
+# 
+
 [CmdletBinding()]
 param (
     [string] $ConfigDirectory,
@@ -10,173 +17,120 @@ $ErrorActionPreference = 'Stop'
 $here = Split-Path -Parent $PSCommandPath
 
 # Install other module dependencies
-# $requiredModules = @(
-#     "Endjin.CodeOps"
-# )
-# $requiredModules | ForEach-Object {
-#     if ( !(Get-Module -ListAvailable $_) ) {
-#         Install-Module $_ -Scope CurrentUser -Repository PSGallery -Force
-#     }
-#     Import-Module $_
-# }
-
-function delete_branch_on_merge
-{
-    if ($repo.githubSettings.delete_branch_on_merge -eq $true) {
-        $current = Invoke-GitHubRestMethod -Url "https://api.github.com/repos/$($repo.org)/$repoName"
-        if (-not $current.delete_branch_on_merge) {
-            Write-Host "[MISSING-DELETE-BRANCH-ON-MERGE] $($repo.org)/$repoName"
-            $resp = Invoke-GitHubRestMethod -Uri "https://api.github.com/repos/$($repo.org)/$repoName" `
-                                            -Verb PATCH `
-                                            -Body @{delete_branch_on_merge=$true} `
-                                            -WhatIf:$WhatIf
-        }
-        
+$requiredModules = @(
+    @{ Name = "Endjin.CodeOps"; Version = "0.2.2" }
+)
+$requiredModules | ForEach-Object {
+    if ( !(Get-Module -ListAvailable $_ | Where-Object { $_.Version -eq $_.Version }) ) {
+        Install-Module -Name $_.Name `
+                       -RequiredVersion $_.Version `
+                       -AllowPrerelease:($_.Version -match '-') `
+                       -Scope CurrentUser `
+                       -Repository PSGallery `
+                       -Force
     }
+    Import-Module -Name $_.Name -RequiredVersion $_.Version
 }
 
-function master_branch_protection
-{
-    # We can only set branch protection on public repos
-    if ($repo.githubSettings.master_branch_protection -eq $true) {
-        $body = @{
-            required_status_checks = @{
-                strict = $true
-                contexts = @()
-            }
-            enforce_admins = $true
-            required_pull_request_reviews = @{
-                dismissal_restrictions= @{
-                    users = @()
-                    teams = @()
-                }
-                dismiss_stale_reviews = $true
-                require_code_owner_reviews = $false
-                # required_approving_review_count = 1           # requires preview API to change this
-            }
-            restrictions = @{
-                users = @()
-                teams =  @()
-                apps = @()
-            }
-        }
-        $currentRepo = Invoke-GitHubRestMethod -Uri "https://api.github.com/repos/$($repo.org)/$repoName"
-        if ($currentRepo.private) {
-            Write-Verbose "Repo '$($repo.org)/$repoName' is private - skipping branch protection settings"
-        }
-        else {
-            Write-Verbose "Checking 'master' branch protection policy"
-            $currentPolicy = Invoke-GitHubRestMethod -Uri "https://api.github.com/repos/$($repo.org)/$repoName/branches/master/protection"
-            if (-not $currentPolicy.protected) {
-                # track policy breach
-                Write-Host "[MISSING-MASTER-BRANCH-PROTECTION] $($repo.org)/$repoName"
-            }
-            # should we always set the policy even if one already exists?
-            $resp = Invoke-GitHubRestMethod -Uri "https://api.github.com/repos/$($repo.org)/$repoName/branches/master/protection" `
-                                                -Verb PUT `
-                                                -Body $body `
-                                                -WhatIf:$WhatIf
-        }
-    }
-}
 
-function _getAllOrgReposWithDefaults
-{
-    $allRepos = Invoke-GitHubRestMethod -Uri "https://api.github.com/orgs/$org/repos?per_page=100" -AllPages | Select -ExpandProperty name
+#
+# Helper functions
+#
+function _getAllOrgReposWithDefaults {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [string] $Org,
+
+        [Parameter(Mandatory = $true)]
+        [hashtable] $DefaultSettings
+    )
+
+    $allRepos = Invoke-GitHubRestMethod -Uri "https://api.github.com/orgs/$Org/repos?per_page=100" `
+                                        -AllPages | `
+                    Select-Object -ExpandProperty name
     $reposToProcess = @{}
-    $allRepos | % { $reposToProcess += @{ "$_" = $defaultSettings } }
+    $allRepos | ForEach-Object {
+        # add each repo to the main processing list with default settings policy applied
+        # the defaults can be overridden by setting them in the YAML repo files
+        $reposToProcess += @{ "$_" = $DefaultSettings.Clone() } 
+    }
 
     return $reposToProcess
 }
-
-function _getAllOrgs
-{
+function _getAllOrgs {
     # returns all the orgs that we want included in this process
     @(
-        # "ais-dotnet"
-        # "corvus-dotnet"
-        "endjin"
-        # "marain-dotnet"
-        # "menes-dotnet"
-        # "vellum-dotnet"
+        "ais-dotnet"
+        "corvus-dotnet"
+        "marain-dotnet"
+        "menes-dotnet"
+        "vellum-dotnet"
     )
 }
-
-function _mergeSettingsOverrides
-{
+function _mergeSettingsOverrides {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$true)]
-        [hashtable] $RepoOverrides,
+        [Parameter(Mandatory = $true)]
+        [AllowNull()]
+        [hashtable[]] $RepoOverrides,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [hashtable] $RepoDefaults
     )
 
     # Check each repo in the overrides collection and apply any overriden
-    # 'settings' to the collection containing the default policy
-    $RepoOverrides | `
-        ? { $_.org -eq $org } | `
-        ? { $_.ContainsKey("githubSettings") } | `
-        % {
+    # 'settings' to the collection containing the main processing list
+    # (that otherwise have the default policy applied)
+    $RepoOverrides | Where-Object { $_ } | `
+        Where-Object { $_.ContainsKey("githubSettings") } | `
+        ForEach-Object {
             $settings = $_.githubSettings
             $repoName = $_.name
-            $settings.Keys | % {
+            $settings.Keys | ForEach-Object {
                 $RepoDefaults[$repoName].$_ = $settings[$_]
             }
         }
 
     return $RepoDefaults
 }
+function _processOrg {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [string] $Org,
 
-function _main
-{
-    # Read all existing repo config that might have specific settings configured
-    $reposFromYaml = [array](Get-AllRepoConfiguration -ConfigDirectory $ConfigDirectory -LocalMode | Where-Object { $_ })
+        [Parameter(Mandatory = $true)]
+        [AllowNull()]
+        [hashtable] $RepoConfig
+    )
 
-    # Read all the repos across our orgs
-    # $globalSettings = gc -raw  "$ConfigDirectory/global-settings.yml" | ConvertFrom-Yaml
-    $allOrgs = _getAllOrgs
-
-    # the list of settings that are enforced, by default
-    $defaultSettings = @{
-        delete_branch_on_merge = $true
-        master_branch_protection = $true
-    }
-
-    $failedRepos = @()   
-    foreach ($org in $allOrgs) {
-        try {
-            # When running in GitHub Actions we will need ensure the GitHub App is
-            # authenticated for the current GitHub Org
-            if ($env:SSH_PRIVATE_KEY -and $env:GITHUB_APP_ID) {
-                Write-Host "Getting access token for organisation: '$org'"
-                $accessToken = New-GitHubAppInstallationAccessToken -AppId $env:GITHUB_APP_ID `
-                                                                    -AppPrivateKey $env:SSH_PRIVATE_KEY `
-                                                                    -OrgName $org
-                # gh cli authentcation uses this environment variable
-                $env:GITHUB_TOKEN = $accessToken
-            }
-
-            # get a collection of all repos in the org, intially configure the default policy settings for each repo
-            $reposToProcess = _getAllOrgReposWithDefaults
+    # get a collection of all repos in the org, intially configure the default policy settings for each repo
+    $reposToProcess = _getAllOrgReposWithDefaults -Org $org -DefaultSettings $defaultSettings
             
-            # update $reposToProcess with any per-repo overrides defined in the yaml files
-            $reposToProcess = _mergeSettingsOverrides
+    # update $reposToProcess with any per-repo overrides defined in the yaml files
+    $reposToProcess = _mergeSettingsOverrides -RepoOverrides $RepoConfig -RepoDefaults $reposToProcess
 
-            # 'name' can be a YAML list for repos that share the same config settings
-            foreach ($repo in $reposToProcess) {
-                Write-Host "`nOrg: $org - Repo: $repo`n" -f green
+    # 'name' can be a YAML list for repos that share the same config settings
+    foreach ($repoName in $reposToProcess.Keys) {
+        try {
+            Write-Host "`nOrg: $Org - Repo: $repoName`n" -f green
 
-                delete_branch_on_merge
-
-                master_branch_protection
+            foreach ($settingKey in $reposToProcess[$repoName].Keys) {
+                $setting = $reposToProcess[$repoName].$settingKey
+                # dynamically call the handler which should be a function with the same name
+                if (Test-Path function:/$settingKey) {
+                    Invoke-Expression ('{0} -Org $Org -RepoName $repoName -Setting $setting -WhatIf:$WhatIf' -f $settingKey)
+                }
+                else {
+                    throw "The handler for '$settingKey' could not be found."
+                }
             }
         }
         catch {
             # Track the failed repo, before continuing with the rest
-            $failedRepoName = '{0}/{1}' -f $repo.org, $repoName
-            $failedRepos += $failedRepoName
+            $failedRepoName = '{0}/{1}' -f $Org, $repoName
+            $script:failedRepos += $failedRepoName
             $ErrorActionPreference = "Continue"
             $errorMessage = "Processing the repository '$failedRepoName' reported the following error: $($_.Exception.Message)"
             Log-Error -Message $errorMessage
@@ -186,10 +140,42 @@ function _main
             $ErrorActionPreference = "Stop"
         }
     }
+}
 
-    if ($failedRepos.Count -gt 0) {
+function _main {
+    # Read all existing repo config that might have specific settings configured
+    $reposFromYaml = [array](Get-AllRepoConfiguration -ConfigDirectory $ConfigDirectory -LocalMode | Where-Object { $_ })
+
+    # Read all the repos across our orgs
+    $allOrgs = _getAllOrgs
+
+    $script:failedRepos = @()   
+    foreach ($org in $allOrgs) {
+        try {
+            # When running in GitHub Actions we will need ensure the GitHub App is
+            # authenticated for the current GitHub Org
+            if ($env:SSH_PRIVATE_KEY -and $env:GITHUB_APP_ID) {
+                Write-Host "Getting access token for organisation: '$org'"
+                $accessToken = New-GitHubAppInstallationAccessToken -AppId $env:GITHUB_APP_ID `
+                    -AppPrivateKey $env:SSH_PRIVATE_KEY `
+                    -OrgName $org
+                
+                $env:GITHUB_TOKEN = $accessToken
+            }
+
+            $orgRepoConfigs = $reposFromYaml | Where-Object { $_.org -eq $org }
+            _processOrg -Org $org -RepoConfig $orgRepoConfigs
+        }
+        catch {
+            Log-Error -Message $_.Exception.Message
+            Write-Warning $_.ScriptStackTrace
+            Write-Error $_.Exception.Message
+        }
+    }
+
+    if ($script:failedRepos.Count -gt 0) {
         $ErrorActionPreference = "Continue"
-        $errorMessage = "The following repositories reported errors during processing:`n{0}" -f ($failedRepos -join "`n")
+        $errorMessage = "The following repositories reported errors during processing:`n{0}" -f ($script:failedRepos -join "`n")
         Write-Error $errorMessage
         exit 1
     }
@@ -197,6 +183,16 @@ function _main
 
 # Detect when dot sourcing the script, so we don't immediately execute anything when running Pester
 if (!$MyInvocation.Line.StartsWith('. ')) {
+
+    # Load the handler functions for each GitHub setting policy definition
+    Get-ChildItem -Path $here/github-settings-definitions -Filter *.ps1 | ForEach-Object {
+        Write-Verbose "Loading $($_.FullName)"
+        . $_
+    }
+
+    # setup the default policy settings
+    $defaultSettings = getDefaultSettingsPolicy
+
     _main
     exit 0
 }

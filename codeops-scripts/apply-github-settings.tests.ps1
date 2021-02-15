@@ -2,8 +2,6 @@ $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 . "$here\$sut"
 
-ipmo Endjin.CodeOps
-
 Describe "Applying standard GitHub settings" {
 
     Context "Merging settings overrides" {
@@ -14,11 +12,11 @@ repos:
   name: dependency-playground
   githubSettings:
     delete_branch_on_merge: true
-    master_branch_protection: false
+    default_branch_protection: false
 '@
 
-        $configDir = Join-Path TestDrive:/ 'repo'
-        mkdir $configDir
+        $configDir = Join-Path 'TestDrive:' 'repo'
+        New-Item -ItemType Directory $configDir
         set-content -Path $configDir/test.yml -Value $repoYaml
         $repos = [array](Get-AllRepoConfiguration -ConfigDirectory $configDir -LocalMode | Where-Object { $_ })
         $allReposJson = @'
@@ -223,28 +221,27 @@ repos:
     }
 ]
 '@
+        $defaultSettings = @{
+            delete_branch_on_merge = $true
+            default_branch_protection = $true
+        }
 
-        Mock _getAllOrgs { @("endjin") }
-        Mock _getAllOrgRepos { $allReposJson | ConvertFrom-Json -Depth 30 -AsHashtable }
+        Mock Invoke-GitHubRestMethod { $allReposJson | ConvertFrom-Json -Depth 30 -AsHashtable }
 
-        # $defaultSettings = @{
-        #     delete_branch_on_merge = $true
-        #     master_branch_protection = $true
-        # }
+        $repoDefaults = _getAllOrgReposWithDefaults -Org 'endjin' -DefaultSettings $defaultSettings
+        $result = _mergeSettingsOverrides -RepoOverrides $repos `
+                                          -RepoDefaults $repoDefaults
 
-        # $allRepos = $allReposJson | ConvertFrom-Json -Depth 30 -AsHashtable
-        # $reposToProcess = @{}
-        # $allRepos | % { $reposToProcess += @{ "$($_.name)" = $defaultSettings } }
+        It "should return the correct number of repositories" {
+            $result.Keys.Count | Should -Be 2
+        }
 
-        # # update $reposToProcess with any overridden 'githubSettings' defined in the yaml files
-        # $repos | `
-        #     ? { $_.org -eq 'endjin' } | `
-        #     ? { $_.ContainsKey("githubSettings") } | `
-        #     % {
-        #         $settings = $_.githubSettings
-        #         $repoName = $_.name
-        #         $settings.Keys | % { $reposToProcess[$repoName].$_ = $settings[$_] }
-        #     }
-        # $reposToProcess | convertto-json -Depth 30
+        It "should return the default value for the non-overridden repo" {
+            $result["modern-data-platform"].default_branch_protection | Should -Be $true
+        }
+
+        It "should return the custom value for the overridden repo" {
+            $result["dependency-playground"].default_branch_protection | Should -Be $false
+        }
     }
 }
