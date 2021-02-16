@@ -22,11 +22,12 @@ jobs:
         dotnet-version: '3.1.402'
     - name: Install GitVersion
       run: |
-        dotnet tool install -g GitVersion.Tool --version 5.2.4
+        dotnet tool install -g GitVersion.Tool --version 5.6.6
         echo "/github/home/.dotnet/tools" >> $GITHUB_PATH
     - name: Run GitVersion
       id: run_gitversion
       run: |
+        pwsh -noprofile -c 'dotnet-gitversion /diag'
         pwsh -noprofile -c '(dotnet-gitversion | ConvertFrom-Json).psobject.properties | % { echo ("::set-output name={0}::{1}" -f $_.name, $_.value) }'
 
   publish_to_psgallery:
