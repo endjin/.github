@@ -73,6 +73,9 @@ Describe 'Migrate Repo to SpecFlow Meta Package Tests' {
 </Project>
 '@
 
+    # mock-out the call to NuGet so tests doesn't break when new versions are published
+    Mock Invoke-WebRequest { @{Content = "{ `"Versions`": [`"1.0.0`",`"1.0.1`",`"1.1.0`"] }" } }
+
     Context 'Up-to-date project' {
         $testProjectFile = Join-Path TestDrive: 'test-project.csproj'
         Set-Content -Path $testProjectFile -Value $upToDateProject
