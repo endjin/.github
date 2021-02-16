@@ -18,7 +18,7 @@ $here = Split-Path -Parent $PSCommandPath
 
 # Install other module dependencies
 $requiredModules = @(
-    @{ Name = "Endjin.CodeOps"; Version = "0.2.2" }
+    @{ Name = "Endjin.CodeOps"; Version = "0.2.3" }
 )
 $requiredModules | ForEach-Object {
     if ( !(Get-Module -ListAvailable $_ | Where-Object { $_.Version -eq $_.Version }) ) {
