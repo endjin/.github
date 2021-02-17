@@ -12,4 +12,8 @@ repos:
     specflowMetaPackageSettings:
       enabled: false
     syncWorkflowTemplates: false
+  - org: endjin
+    name: test-data-gen
+    githubSettings:
+      default_branch_protection: false
   
