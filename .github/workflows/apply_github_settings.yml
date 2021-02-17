@@ -1,0 +1,37 @@
+name: apply_github_settings
+on: 
+  workflow_dispatch:
+    inputs:
+      config_repo:
+        default: live
+        required: true
+
+jobs:
+  apply_github_settings:
+    runs-on: ubuntu-latest
+    name: Deploys github workflow templates to target orgs
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      
+      - name: Run apply-github-settings.ps1
+        run: |
+          Install-Module powershell-yaml -Force -Scope CurrentUser -Repository PSGallery
+
+          # process and validate the supplied config repo to use - default to 'test' if blank for some reason
+          if ([string]::IsNullOrEmpty($env:CONFIG_REPO)) {
+            $env:CONFIG_REPO = 'test'
+          }
+          $repoPath = "repos/$($env:CONFIG_REPO)"
+          if (!(Test-Path $repoPath)) {
+            Write-Error "Could not find config repo path: $repoPath"
+            exit 1
+          }
+          ./codeops-scripts/apply-github-settings.ps1 -ConfigDirectory $repoPath -WhatIf
+        shell: pwsh
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.DEPENDJINBOT_PRIVATE_KEY }}
+          GITHUB_APP_ID: ${{ secrets.DEPENDJINBOT_APP_ID }}
+          GITVERSION_NUGETVER: ${{ steps.run_gitversion.outputs.nuGetVersionV2 }}
+          CONFIG_REPO: ${{ github.event.inputs.config_repo }}

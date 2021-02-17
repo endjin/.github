@@ -20,8 +20,6 @@ repos:
     - Marain.TenantManagement
     - Marain.UserNotifications
     - Marain.Workflow
-    githubSettings:
-      delete_branch_on_merge: false
     prAutoflowSettings:
       AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
       - Endjin.*

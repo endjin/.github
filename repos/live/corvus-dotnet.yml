@@ -28,8 +28,6 @@ repos:
     - Corvus.Monitoring
     - Corvus.Retry
     - Corvus.Tenancy
-    githubSettings:
-      delete_branch_on_merge: false
     prAutoflowSettings:
       AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
       - Endjin.*
@@ -43,8 +41,6 @@ repos:
   # Corvus.Testing has custom PR-AUTOFLOW: auto-merges changes to SpecFlow packages
   - org: corvus-dotnet
     name: Corvus.Testing
-    githubSettings:
-      delete_branch_on_merge: false
     prAutoflowSettings:
       AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
       - Endjin.*
