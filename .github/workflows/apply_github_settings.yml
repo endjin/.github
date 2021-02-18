@@ -9,7 +9,7 @@ on:
 jobs:
   apply_github_settings:
     runs-on: ubuntu-latest
-    name: Deploys github workflow templates to target orgs
+    name: Applies standardised GitHub settings to target orgs/repos
     steps:
       - uses: actions/checkout@v2
         with:
