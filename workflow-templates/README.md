@@ -13,6 +13,8 @@ The following workflow templates are available:
 
 More details about `pr-autoflow` can be found [here](https://raw.githubusercontent.com/endjin/pr-autoflow/master/README.md).
 
+There are several GitHub Apps (or bots) involved in these workflows. For more information, see [pr-autoflow bots](../docs/pr-autoflow-bots.md)
+
 The following related workflows interact with each to faciliate the automated approval, merging and releasing of certain pull requests.
 
 These workflows require a JSON configuration file stored in `.github/config/pr-autoflow.json` of the form shown below:
