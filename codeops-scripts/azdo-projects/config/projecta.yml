@@ -1,0 +1,19 @@
+---
+organisation: JDPlayground
+projects:
+  - name: mdp-demo
+    groups:
+      Contributors:
+        - type: group
+          name: mdp-demo Team
+        - type: group
+          name: mdp-developers
+      Readers:
+        - type: group
+          name: mdp-users
+      'Project Administrators':
+        - type: group
+          name: mdp-project-administrators
+      'Build Administrators':
+        - type: group
+          name: mdp-pipeline-administrators

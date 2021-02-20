@@ -1,0 +1,16 @@
+---
+- name: mdp-dev
+  subscriptions:
+    - name: mdp-landing-zone
+      id: 4cd088c7-964c-4e9f-bff2-81511318fe44
+      resource_groups:
+        - name: rg-mdp-data-dev-eun
+          location: uksouth
+          arm_roles:
+            - owner
+  management_groups: []
+  api_permissions:
+    - name: msgraph
+      application_permissions:
+        - Group.Create
+      delegated_permissions: []
