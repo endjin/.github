@@ -11,6 +11,19 @@ function default_branch_protection {
         [string] $RepoName
     )
 
+    # under normal circumstance the policy will enforce this value for the 'delete_branch_on_merge' setting
+    $requiredValue = @{
+        required_status_checks = @{ strict = $true }
+        enforce_admins = $true
+    }
+
+    $result = @{
+        before = ""
+        after = ""
+        expected = $requiredValue
+        skipped = !$SettingValue
+    }
+
     if ($SettingValue -eq $true) {
 
         # setup the payload for configuring branch protection
@@ -47,7 +60,8 @@ function default_branch_protection {
             Write-Verbose "Checking '$defaultBranch' branch protection policy"
             $currentPolicy = Invoke-GitHubRestMethod -Uri "https://api.github.com/repos/$Org/$RepoName/branches/$defaultBranch/protection" `
                                                      -HttpErrorStatusCodesToIgnore @(404)
-            
+            $result.before = $currentPolicy
+
             # assess whether the current branch protection policy is adequate
             if ($null -eq $currentPolicy -or `
                 $currentPolicy.required_status_checks.strict -ne $body.required_status_checks.strict -or `
@@ -55,12 +69,21 @@ function default_branch_protection {
             ) {
                 # track policy breach & apply branch protection policy
                 if ($PSCmdlet.ShouldProcess($RepoName, 'default_branch_protection')) {
-                    Write-Host "[MISSING-MASTER-BRANCH-PROTECTION] $Org/$RepoName"
                     $resp = Invoke-GitHubRestMethod -Uri "https://api.github.com/repos/$Org/$RepoName/branches/$defaultBranch/protection" `
                                                     -Verb PUT `
                                                     -Body $body
+                    $result.after = $resp
                 }
+                else {
+                    $result.after = "[DRY-RUN-MODE]"
+                }
+            }
+            else {
+                # already up-to-date
+                $result.after = $requiredValue
             }
         }
     }
+
+    return $result
 }

@@ -4,7 +4,7 @@
 # This script is responsible for ensuring all GitHub repositories are
 # configured as per a policy of defined repository settings.
 #
-# For example, enforcing a branch protection.
+# For example, enforcing a branch protection policy.
 # 
 
 [CmdletBinding()]
@@ -113,45 +113,53 @@ function _processOrg {
     # update $reposToProcess with any per-repo overrides defined in the yaml files
     $reposToProcess = _mergeSettingsOverrides -RepoOverrides $RepoConfig -RepoDefaults $reposToProcess
 
+    $orgResults = @{}
     # 'name' can be a YAML list for repos that share the same config settings
     foreach ($repoName in $reposToProcess.Keys) {
-        try {
-            Write-Host "`nOrg: $Org - Repo: $repoName`n" -f green
 
-            foreach ($settingKey in $reposToProcess[$repoName].Keys) {
-                $setting = $reposToProcess[$repoName].$settingKey
+        Write-Host "`nOrg: $Org - Repo: $repoName`n" -f green
+
+        $repoResults = @{}
+
+        foreach ($settingKey in $reposToProcess[$repoName].Keys) {
+            $setting = $reposToProcess[$repoName].$settingKey
+
+            try {
                 # dynamically call the handler which should be a function with the same name
                 if (Test-Path function:/$settingKey) {
-                    Invoke-Expression ('{0} -Org $Org -RepoName $repoName -Setting $setting -WhatIf:$WhatIf' -f $settingKey)
+                    $settingResult = Invoke-Expression ('{0} -Org $Org -RepoName $repoName -Setting $setting -WhatIf:$WhatIf' -f $settingKey)
+
+                    # add the results from the setting policy handler
+                    $repoResults += @{ $settingKey = $settingResult }
                 }
                 else {
                     throw "The handler for '$settingKey' could not be found."
                 }
             }
+            catch {
+                # set the error property on the result object
+                $repoResults += @{ $setting = @{ error = $_.Exception.Message } }
+            }
         }
-        catch {
-            # Track the failed repo, before continuing with the rest
-            $failedRepoName = '{0}/{1}' -f $Org, $repoName
-            $script:failedRepos += $failedRepoName
-            $ErrorActionPreference = "Continue"
-            $errorMessage = "Processing the repository '$failedRepoName' reported the following error: $($_.Exception.Message)"
-            Log-Error -Message $errorMessage
-            Write-Error $errorMessage
-            Write-Warning $_.ScriptStackTrace
-            Write-Warning "Processing of remaining repositories will continue"
-            $ErrorActionPreference = "Stop"
-        }
+        $orgResults += @{ $repoName = $repoResults }
     }
+    return $orgResults
 }
 
 function _main {
+    $runResults = [ordered]@{}
+    $runMetadata = [ordered]@{ 
+        start_time = [datetime]::UtcNow
+        is_dry_run = [bool]$WhatIf
+    }
+
     # Read all existing repo config that might have specific settings configured
     $reposFromYaml = [array](Get-AllRepoConfiguration -ConfigDirectory $ConfigDirectory -LocalMode | Where-Object { $_ })
 
     # Read all the repos across our orgs
     $allOrgs = _getAllOrgs $reposFromYaml
 
-    $script:failedRepos = @()   
+    $allOrgResults = [ordered]@{}
     foreach ($org in $allOrgs) {
         try {
             # When running in GitHub Actions we will need ensure the GitHub App is
@@ -166,7 +174,8 @@ function _main {
             }
 
             [array]$orgRepoConfigs = $reposFromYaml | Where-Object { $_.org -eq $org }
-            _processOrg -Org $org -RepoConfig $orgRepoConfigs
+            $orgResults = _processOrg -Org $org -RepoConfig $orgRepoConfigs
+            $allOrgResults += @{ $org = $orgResults }
         }
         catch {
             Log-Error -Message $_.Exception.Message
@@ -175,12 +184,14 @@ function _main {
         }
     }
 
-    if ($script:failedRepos.Count -gt 0) {
-        $ErrorActionPreference = "Continue"
-        $errorMessage = "The following repositories reported errors during processing:`n{0}" -f ($script:failedRepos -join "`n")
-        Write-Error $errorMessage
-        exit 1
-    }
+    $runMetadata += @{ end_time = [datetime]::UtcNow }
+    $runResults += @{ metadata = $runMetadata }
+    $runResults += @{ orgs = $allOrgResults }
+
+    # TODO: Output file or upload data somewhere?
+    $runResults | ConvertTo-Json -Depth 30 | Out-File ./apply-github-settings-report.json
+
+    # TODO: Simple report on number of errors, should errors fail the script?
 }
 
 # Detect when dot sourcing the script, so we don't immediately execute anything when running Pester
