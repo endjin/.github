@@ -1,22 +1,9 @@
 repos:
   - org: vellum-dotnet
     name:
-    - .github
-    prAutoflowSettings:
-      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
-      - GitHub.Workflow.Templates
-    specflowMetaPackageSettings:
-      enabled: false
-    syncWorkflowTemplates: true
-
-  - org: vellum-dotnet
-    name:
     - vellum-cli
     prAutoflowSettings:
       AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
       - Endjin.*
       - Corvus.*
       AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: []
-    specflowMetaPackageSettings:
-      enabled: true
-    syncWorkflowTemplates: false

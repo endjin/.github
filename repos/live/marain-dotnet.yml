@@ -1,16 +1,6 @@
 repos:
   - org: marain-dotnet
     name:
-    - .github
-    prAutoflowSettings:
-      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
-      - GitHub.Workflow.Templates
-    specflowMetaPackageSettings:
-      enabled: false
-    syncWorkflowTemplates: true
-
-  - org: marain-dotnet
-    name:
     - Marain.Claims
     - Marain.ContentManagement
     - Marain.KeyRotation
@@ -26,8 +16,19 @@ repos:
       - Corvus.*
       - Menes.*
       AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: 
-      - Corvus.*
+      - Corvus.AzureFunctionsKeepAlive
+      - Corvus.Configuration
+      - Corvus.ContentHandling
+      - Corvus.Deployment
+      - Corvus.DotLiquidAsync
+      - Corvus.EventStore
+      - Corvus.Extensions
+      - Corvus.Extensions.CosmosDb
+      - Corvus.Extensions.Newtonsoft.Json
+      - Corvus.Extensions.System.Text.Json
+      - Corvus.Identity
+      - Corvus.Leasing
+      - Corvus.Monitoring
+      - Corvus.Retry
+      - Corvus.Tenancy
       - Menes.*
-    specflowMetaPackageSettings:
-      enabled: true
-    syncWorkflowTemplates: false
