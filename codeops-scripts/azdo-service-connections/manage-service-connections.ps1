@@ -1,32 +1,45 @@
 [CmdletBinding()]
 param (
-    [switch] $DryRun
+    [Parameter(Mandatory=$true)]
+    [string] $ConfigPath,
+
+    [Parameter(Mandatory=$true)]
+    [guid] $AadTenantId,
+
+    [Parameter()]
+    [switch] $DryRun,
+
+    [Parameter()]
+    [string] $CorvusModulePath
 )
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version 4.0
 
-# Ensure we have the required version of the Corvus.Deployment PowerShell module
-$corvusDeploymentModule = "Corvus.Deployment"
-$corvusDeploymentModulePackageVersion = "0.3.0"
-$corvusDeploymentModuleVersion,$corvusDeploymentModulePrereleaseTag = $corvusDeploymentModulePackageVersion -split "-",2
-$existingInstalled = Get-Module -ListAvailable $corvusDeploymentModule | `
-                        Where-Object { $_.Version -eq $corvusDeploymentModuleVersion }
-if ($null -eq $existingInstalled) {
-    Write-Verbose ("Installing required module: {0} v{1}" -f $corvusDeploymentModule, $corvusDeploymentModuleVersion)
-    $installArgs= @{
-        Name = $corvusDeploymentModule
-        Scope = "CurrentUser"
-        Force = $true
-        RequiredVersion = $corvusDeploymentModulePackageVersion
-        AllowPrerelease = ($corvusDeploymentModulePackageVersion -match "-")
-        Repository = "PSGallery"
+#region module setup
+if (!$CorvusModulePath) {
+    # Ensure we have the required version of the Corvus.Deployment PowerShell module
+    $corvusDeploymentModule = "Corvus.Deployment"
+    $corvusDeploymentModulePackageVersion = "0.3.2"
+    $corvusDeploymentModuleVersion,$corvusDeploymentModulePrereleaseTag = $corvusDeploymentModulePackageVersion -split "-",2
+    $existingInstalled = Get-Module -ListAvailable $corvusDeploymentModule | `
+                            Where-Object { $_.Version -eq $corvusDeploymentModuleVersion }
+    if ($null -eq $existingInstalled) {
+        Write-Verbose ("Installing required module: {0} v{1}" -f $corvusDeploymentModule, $corvusDeploymentModuleVersion)
+        $installArgs= @{
+            Name = $corvusDeploymentModule
+            Scope = "CurrentUser"
+            Force = $true
+            RequiredVersion = $corvusDeploymentModulePackageVersion
+            AllowPrerelease = ($corvusDeploymentModulePackageVersion -match "-")
+            Repository = "PSGallery"
+        }
+        Install-Module @installArgs
+        $existingInstalled = Get-Module -ListAvailable $corvusDeploymentModule | ? { $_.Version -eq $corvusDeploymentModuleVersion }
     }
-    Install-Module @installArgs
-    $existingInstalled = Get-Module -ListAvailable $corvusDeploymentModule | ? { $_.Version -eq $corvusDeploymentModuleVersion }
+    $modulePath = Join-Path (Split-Path -Parent $existingInstalled.Path) "$corvusDeploymentModule.psd1"
 }
-$modulePath = Join-Path (Split-Path -Parent $existingInstalled.Path) "$corvusDeploymentModule.psd1"
-Import-Module $modulePath -Verbose:$false -Force
+Import-Module $CorvusModulePath -Verbose:$false -Force
 
 # Install other required PowerShell modules
 $requiredModules = @(
@@ -37,15 +50,9 @@ foreach ($requiredModule in $requiredModules) {
                                   -Version $requiredModule.Version
     $module | Import-Module -Verbose:$false -Force
 }
+#endregion
 
-#
-# Main script starts here
-#
-$here = Split-Path -Parent $PSCommandPath
-
-#TEMP
-Get-ChildItem -Path "$here/functions" -Filter *.ps1 | % { Write-Host "Loading $($_.FullName)" -f yellow; . $_.FullName }
-
+#region helper functions
 function processManagementGroups
 {
     [CmdletBinding()]
@@ -79,7 +86,6 @@ function processSubscriptions
     )
 
     Write-Host "Processing subscription: $Name [$Id]"
-
     foreach ($resourceGroup in $ResourceGroups) {
         processResourceGroups -Name $resourceGroup.name `
                                 -Location $resourceGroup.location `
@@ -108,7 +114,7 @@ function processResourceGroups
     Write-Host "Processing resource group: $Name"
     foreach ($armRole in $ArmRoles) {
         Write-Host "Processing ARM role assignment: $armRole"
-        $res = Assert-ResourceGroupWithRbac -Name $Name `
+        $res = Assert-CorvusResourceGroupWithRbac -Name $Name `
                                             -Location $Location `
                                             -RoleName $armRole `
                                             -ServicePrincipalName $ServicePrincipalName `
@@ -123,6 +129,9 @@ function processApiPermissions
         [Parameter(Mandatory=$true)]
         [string] $Name,
 
+        [Parameter(Mandatory=$true)]
+        [string] $ServicePrincipalName,
+
         [Parameter()]
         [string[]] $DelegatedPermissions = @(),
 
@@ -130,43 +139,56 @@ function processApiPermissions
         [string[]] $ApplicationPermissions = @()
     )
 
-    Write-Host "Processing API permissions for '$Name'"
-    Write-Host "  Delegated Permissions: $($DelegatedPermissions -join ',')"
-    Write-Host "  Application Permissions: $($ApplicationPermissions -join ',')"
+    $sp = Get-AzADServicePrincipal -ServicePrincipalName $ServicePrincipalName
+
+    Write-Host "Processing '$Name' API permissions for '$($sp.DisplayName)' [$($sp.ApplicationId)]"
+    Assert-CorvusAzureAdApiPermissions -ApiName $Name `
+                                    -DelegatedPermissions $DelegatedPermissions `
+                                    -ApplicationPermissions $ApplicationPermissions `
+                                    -ApplicationId $sp.ApplicationId `
+                                    -WhatIf:$DryRun
 }
+#endregion
 
-function processServiceConnection
-{
-    [CmdletBinding()]
-    param (
-        [Parameter(Mandatory=$true)]
-        [string] $Name
-    )
+#
+# Main script starts here
+#
+$here = Split-Path -Parent $PSCommandPath
 
-    Write-Host "Processing service connection: $Name" -f Cyan
-}
-
-$configFiles = Get-ChildItem -Path $here -Filter *.yml
+$configFiles = Get-ChildItem -Path $ConfigPath -Filter *.yml
 
 foreach ($configFile in $configFiles) {
     Write-Host "Processing $configFile" -f Green
     $config = Get-Content $configFile | ConvertFrom-Yaml
 
     foreach ($entry in $config) {
-        $serviceConnectionName = $entry.name
+        Connect-CorvusAzure -SubscriptionId $entry.subscriptions[0].id `
+                                -AadTenantId $AadTenantId
 
-        $servicePrincipal = processServiceConnection -Name $serviceConnectionName
+        $serviceConnectionName = $entry.name
+        $sc = Assert-CorvusAzdoServiceConnection -Name $serviceConnectionName `
+                                        -Project $entry.project `
+                                        -Organisation $entry.organisation `
+                                        -ServicePrincipalName $serviceConnectionName `
+                                        -WhatIf:$DryRun
+
+        $sp = Get-AzADServicePrincipal -ApplicationId $sc.authorization.parameters.serviceprincipalid
 
         foreach ($mg in $entry.management_groups) {
             processManagementGroups -Name $mg.name
         }
 
         foreach ($sub in $entry.subscriptions) {
-            processSubscriptions -Name $sub.name -Id $sub.id -ResourceGroups $sub.resource_groups -ServicePrincipalName $serviceConnectionName
+            Set-AzContext -SubscriptionId $sub.id -TenantId $moduleContext.AadTenantId | Out-Null
+            processSubscriptions -Name $sub.name `
+                                    -Id $sub.id `
+                                    -ResourceGroups $sub.resource_groups `
+                                    -ServicePrincipalName $sp.ServicePrincipalNames[0]
         }
 
         foreach ($api in $entry.api_permissions) {
             processApiPermissions -Name $api.name `
+                                  -ServicePrincipalName $sp.ServicePrincipalNames[0] `
                                   -DelegatedPermissions $api.delegated_permissions `
                                   -ApplicationPermissions $api.application_permissions
         }
