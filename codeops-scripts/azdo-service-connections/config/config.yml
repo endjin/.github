@@ -1,5 +1,7 @@
 ---
-- name: mdp-dev
+- name: mdp-deployment-spn-dev
+  project: mdp-demo
+  organisation: JDPlayground
   subscriptions:
     - name: mdp-landing-zone
       id: 4cd088c7-964c-4e9f-bff2-81511318fe44
@@ -8,9 +10,24 @@
           location: uksouth
           arm_roles:
             - owner
+        - name: rg-mdp-syn-dev-eun
+          location: uksouth
+          arm_roles:
+            - owner
+        - name: rg-mdp-config-dev-eun
+          location: uksouth
+          arm_roles:
+            - owner
   management_groups: []
   api_permissions:
+    - name: azuregraph
+      application_permissions:
+        - Application.ReadWrite.OwnedBy
+      delegated_permissions:
+        - User.Read
     - name: msgraph
       application_permissions:
+        - Group.Read.All
         - Group.Create
-      delegated_permissions: []
+      delegated_permissions:
+        - Application.Read.All
