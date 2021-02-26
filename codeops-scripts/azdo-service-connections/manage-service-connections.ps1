@@ -1,3 +1,35 @@
+# <copyright file="manage-service-connections.ps1" company="Endjin Limited">
+# Copyright (c) Endjin Limited. All rights reserved.
+# </copyright>
+
+<#
+.SYNOPSIS
+Executes a GitOps-based process for managing Azure DevOps Service Connections and their permissions.
+
+.DESCRIPTION
+Reads the associated YAML configuration files that define the required service connections.  Each service
+connection can define the permissions
+
+.PARAMETER ConfigPath
+The path to the directory containing your YAML configuration files.
+
+.PARAMETER AadTenantId
+The Azure TenantId where the Azure DevOps instance resides.
+
+.PARAMETER AllowSecretReset
+When specified, pre-existing service principals associated to new service connections will have their
+secret reset, so it can be provided to Azure DevOps.  When not specified, this scenario will cause a 
+terminating error. 
+
+.PARAMETER DryRun
+When specified, allows changes to be evaluated for their impact. Instead of applying changes, you will be
+notified of when changes to Azure DevOps, Azure Active Directory or Azure Resources would be made.
+
+.PARAMETER CorvusModulePath
+Reserved for development and testing purposes.
+
+#>
+
 [CmdletBinding()]
 param (
     [Parameter(Mandatory=$true)]
@@ -5,6 +37,9 @@ param (
 
     [Parameter(Mandatory=$true)]
     [guid] $AadTenantId,
+
+    [Parameter()]
+    [switch] $AllowSecretReset,
 
     [Parameter()]
     [switch] $DryRun,
@@ -37,7 +72,7 @@ if (!$CorvusModulePath) {
         Install-Module @installArgs
         $existingInstalled = Get-Module -ListAvailable $corvusDeploymentModule | ? { $_.Version -eq $corvusDeploymentModuleVersion }
     }
-    $modulePath = Join-Path (Split-Path -Parent $existingInstalled.Path) "$corvusDeploymentModule.psd1"
+    $CorvusModulePath = Join-Path (Split-Path -Parent $existingInstalled.Path) "$corvusDeploymentModule.psd1"
 }
 Import-Module $CorvusModulePath -Verbose:$false -Force
 
@@ -53,19 +88,40 @@ foreach ($requiredModule in $requiredModules) {
 #endregion
 
 #region helper functions
-function processManagementGroups
+function processManagementGroup
 {
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory=$true)]
         [string] $Name,
+
+        [Parameter(Mandatory=$true)]
+        [string[]] $ArmRoles,
 
         [Parameter(Mandatory=$true)]
         [string] $ServicePrincipalName
     )
 
     Write-Host "Processing management group: $Name"
-
+    foreach ($armRole in $ArmRoles) {
+        $mg = Get-AzManagementGroup | Where-Object { $_.DisplayName -eq $Name }
+        if ($mg) {
+            $existingAssignment = Get-AzRoleAssignment -Scope $mg.Id `
+                                                        -RoleDefinitionName $armRole `
+                                                        -ServicePrincipalName $ServicePrincipalName
+            if (!$existingAssignment) {
+                if ($PSCmdlet.ShouldProcess($armRole, "Assign Role")) {
+                    $roleAssignment = New-AzRoleAssignment -Scope $mg.Id `
+                                                            -RoleDefinitionName $armRole `
+                                                            -ServicePrincipalName $ServicePrincipalName
+                }
+            }
+            
+        }
+        else {
+            Write-Warning "The management group $Name could not be found"
+        }
+    }
 }
 
 function processSubscriptions
@@ -163,19 +219,23 @@ foreach ($configFile in $configFiles) {
 
     foreach ($entry in $config) {
         Connect-CorvusAzure -SubscriptionId $entry.subscriptions[0].id `
-                                -AadTenantId $AadTenantId
+                            -AadTenantId $AadTenantId
 
         $serviceConnectionName = $entry.name
         $sc = Assert-CorvusAzdoServiceConnection -Name $serviceConnectionName `
                                         -Project $entry.project `
                                         -Organisation $entry.organisation `
                                         -ServicePrincipalName $serviceConnectionName `
+                                        -AllowSecretReset:$AllowSecretReset `
                                         -WhatIf:$DryRun
 
         $sp = Get-AzADServicePrincipal -ApplicationId $sc.authorization.parameters.serviceprincipalid
 
         foreach ($mg in $entry.management_groups) {
-            processManagementGroups -Name $mg.name
+            processManagementGroup -Name $mg.name `
+                                    -ArmRoles $mg.arm_roles `
+                                    -ServicePrincipalName $sp.ServicePrincipalNames[0] `
+                                    -WhatIf:$DryRun
         }
 
         foreach ($sub in $entry.subscriptions) {

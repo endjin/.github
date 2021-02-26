@@ -18,7 +18,10 @@
           location: uksouth
           arm_roles:
             - owner
-  management_groups: []
+  management_groups:
+    - name: Root Management Group
+      arm_roles:
+        - owner
   api_permissions:
     - name: azuregraph
       application_permissions:
