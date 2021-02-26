@@ -3,7 +3,7 @@ repos:
     name:
     - Marain.Claims
     - Marain.ContentManagement
-    - Marain.KeyRotation
+    # - Marain.KeyRotation      (Temporarily disabled until initial feature branch is merged)
     - Marain.Instance
     - Marain.Operations
     - Marain.Tenancy
