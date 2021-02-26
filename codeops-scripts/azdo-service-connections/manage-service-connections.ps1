@@ -138,6 +138,7 @@ function processSubscriptions
         [string] $ServicePrincipalName,
 
         [Parameter(Mandatory=$true)]
+        [AllowEmptyCollection()]
         [hashtable[]] $ResourceGroups
     )
 
@@ -199,7 +200,7 @@ function processApiPermissions
 
     if ($DryRun) {
         # Provide a fake service principal when in 'DryRun' mode
-        $sp = _getFakeServicePrincipal
+        $sp = _getDryRunServicePrincipal
     }
     else {
         $sp = Get-AzADServicePrincipal -ServicePrincipalName $ServicePrincipalName
@@ -213,11 +214,11 @@ function processApiPermissions
                                     -WhatIf:$DryRun
 }
 
-function _getFakeServicePrincipal
+function _getDryRunServicePrincipal
 {
     return @{
-        ServicePrincipalNames = @("http://FakeServicePrincipal")
-        DisplayName = "Fake Service Principal"
+        ServicePrincipalNames = @("http://DryRunServicePrincipal")
+        DisplayName = "DryRun Service Principal"
         ApplicationId = (New-Guid).Guid
     }
 }
@@ -251,7 +252,7 @@ foreach ($configFile in $configFiles) {
 
         if ($DryRun) {
             # Provide a fake service principal when in 'DryRun' mode
-            $sp = _getFakeServicePrincipal
+            $sp = _getDryRunServicePrincipal
         }
         else {
             $sp = Get-AzADServicePrincipal -ApplicationId $sc.authorization.parameters.serviceprincipalid
