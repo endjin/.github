@@ -239,7 +239,7 @@ foreach ($configFile in $configFiles) {
         }
 
         foreach ($sub in $entry.subscriptions) {
-            Set-AzContext -SubscriptionId $sub.id -TenantId $moduleContext.AadTenantId | Out-Null
+            Set-AzContext -SubscriptionId $sub.id -TenantId (Get-AzContext).Tenant.Id | Out-Null
             processSubscriptions -Name $sub.name `
                                     -Id $sub.id `
                                     -ResourceGroups $sub.resource_groups `
