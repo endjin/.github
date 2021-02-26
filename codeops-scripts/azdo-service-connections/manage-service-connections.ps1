@@ -142,6 +142,8 @@ function processSubscriptions
     )
 
     Write-Host "Processing subscription: $Name [$Id]"
+    Set-AzContext -SubscriptionId $Id -TenantId (Get-AzContext).Tenant.Id | Out-Null
+
     foreach ($resourceGroup in $ResourceGroups) {
         processResourceGroups -Name $resourceGroup.name `
                                 -Location $resourceGroup.location `
@@ -195,7 +197,13 @@ function processApiPermissions
         [string[]] $ApplicationPermissions = @()
     )
 
-    $sp = Get-AzADServicePrincipal -ServicePrincipalName $ServicePrincipalName
+    if ($DryRun) {
+        # Provide a fake service principal when in 'DryRun' mode
+        $sp = _getFakeServicePrincipal
+    }
+    else {
+        $sp = Get-AzADServicePrincipal -ServicePrincipalName $ServicePrincipalName
+    }
 
     Write-Host "Processing '$Name' API permissions for '$($sp.DisplayName)' [$($sp.ApplicationId)]"
     Assert-CorvusAzureAdApiPermissions -ApiName $Name `
@@ -204,6 +212,16 @@ function processApiPermissions
                                     -ApplicationId $sp.ApplicationId `
                                     -WhatIf:$DryRun
 }
+
+function _getFakeServicePrincipal
+{
+    return @{
+        ServicePrincipalNames = @("http://FakeServicePrincipal")
+        DisplayName = "Fake Service Principal"
+        ApplicationId = (New-Guid).Guid
+    }
+}
+
 #endregion
 
 #
@@ -214,14 +232,16 @@ $here = Split-Path -Parent $PSCommandPath
 $configFiles = Get-ChildItem -Path $ConfigPath -Filter *.yml
 
 foreach ($configFile in $configFiles) {
-    Write-Host "Processing $configFile" -f Green
+    Write-Host "Processing $configFile" -f Cyan
     $config = Get-Content $configFile | ConvertFrom-Yaml
 
     foreach ($entry in $config) {
+        $serviceConnectionName = $entry.name
+        Write-Host "Processing service connection: $serviceConnectionName" -f Green
+
         Connect-CorvusAzure -SubscriptionId $entry.subscriptions[0].id `
                             -AadTenantId $AadTenantId
 
-        $serviceConnectionName = $entry.name
         $sc = Assert-CorvusAzdoServiceConnection -Name $serviceConnectionName `
                                         -Project $entry.project `
                                         -Organisation $entry.organisation `
@@ -229,7 +249,13 @@ foreach ($configFile in $configFiles) {
                                         -AllowSecretReset:$AllowSecretReset `
                                         -WhatIf:$DryRun
 
-        $sp = Get-AzADServicePrincipal -ApplicationId $sc.authorization.parameters.serviceprincipalid
+        if ($DryRun) {
+            # Provide a fake service principal when in 'DryRun' mode
+            $sp = _getFakeServicePrincipal
+        }
+        else {
+            $sp = Get-AzADServicePrincipal -ApplicationId $sc.authorization.parameters.serviceprincipalid
+        }
 
         foreach ($mg in $entry.management_groups) {
             processManagementGroup -Name $mg.name `
@@ -239,7 +265,6 @@ foreach ($configFile in $configFiles) {
         }
 
         foreach ($sub in $entry.subscriptions) {
-            Set-AzContext -SubscriptionId $sub.id -TenantId (Get-AzContext).Tenant.Id | Out-Null
             processSubscriptions -Name $sub.name `
                                     -Id $sub.id `
                                     -ResourceGroups $sub.resource_groups `
