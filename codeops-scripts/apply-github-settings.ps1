@@ -198,8 +198,9 @@ function _main {
         $timestamp = (Get-Date).ToUniversalTime().ToString('yyyyMMddHHmmssfff')
         # name the file differently for real runs and dry runs
         $filename = $WhatIf ? "dryrun-$timestamp.json" : "run-$timestamp.json"
-        $uri = "https://{0}.blob.core.windows.net/{1}/github_settings/raw/{2}?{3}" -f $env:DATALAKE_NAME,
+        $uri = "https://{0}.blob.core.windows.net/{1}/{2}/github_settings/raw/{3}?{4}" -f $env:DATALAKE_NAME,
                                                                     $env:DATALAKE_FILESYSTEM,
+                                                                    $env:DATALAKE_DIRECTORY,
                                                                     $filename,
                                                                     $env:DATALAKE_SASTOKEN
         $headers = @{ "x-ms-date" = [System.DateTime]::UtcNow.ToString("R"); "x-ms-blob-type" = "BlockBlob" }
