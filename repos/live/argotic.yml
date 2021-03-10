@@ -1,9 +1,8 @@
 repos:
-  - org: vellum-dotnet
+  - org: argotic-syndication-framework
     name:
-    - vellum-cli
+    - Argotic
     prAutoflowSettings:
       AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
       - Endjin.*
-      - Corvus.*
       AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: []
