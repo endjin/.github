@@ -140,7 +140,7 @@ function _processOrg {
             catch {
                 Log-Warning -Message "Error processing '$settingKey' for $repoName - $($_.Exception.Message)"
                 # set the error property on the result object
-                $repoResults += @{ $setting = @{ error = $_.Exception.Message } }
+                $repoResults += @{ $settingKey = @{ error = $_.Exception.Message } }
             }
         }
         $orgResults += @{ $repoName = $repoResults }
