@@ -21,7 +21,7 @@ $requiredModules = @(
     @{ Name = "Endjin.CodeOps"; Version = "0.2.3" }
 )
 $requiredModules | ForEach-Object {
-    if ( !(Get-Module -ListAvailable $_ | Where-Object { $_.Version -eq $_.Version }) ) {
+    if ( !(Get-Module -ListAvailable $_.Name | Where-Object { $_.Version -eq $_.Version }) ) {
         Install-Module -Name $_.Name `
                        -RequiredVersion $_.Version `
                        -AllowPrerelease:($_.Version -match '-') `
@@ -188,10 +188,26 @@ function _main {
     $runResults += @{ metadata = $runMetadata }
     $runResults += @{ orgs = $allOrgResults }
 
-    # TODO: Output file or upload data somewhere?
-    $runResults | ConvertTo-Json -Depth 30 | Out-File ./apply-github-settings-report.json
+    # Produce a JSON report file
+    $reportFile = "apply-github-settings-report.json"
+    $runResults | ConvertTo-Json -Depth 30 | Out-File $reportFile -Force
 
-    # TODO: Simple report on number of errors, should errors fail the script?
+    # Upload JSON report to datalake
+    if ($env:DATALAKE_NAME -and $env:DATALAKE_SASTOKEN -and $env:DATALAKE_FILESYSTEM -and $env:DATALAKE_DIRECTORY) {
+        Write-Host "Publishing report to datalake: $($env:DATALAKE_NAME)"
+        $timestamp = (Get-Date).ToUniversalTime().ToString('yyyyMMddHHmmssfff')
+        # name the file differently for real runs and dry runs
+        $filename = $WhatIf ? "dryrun-$timestamp.json" : "run-$timestamp.json"
+        $uri = "https://{0}.blob.core.windows.net/{1}/github_settings/raw/{2}?{3}" -f $env:DATALAKE_NAME,
+                                                                    $env:DATALAKE_FILESYSTEM,
+                                                                    $filename,
+                                                                    $env:DATALAKE_SASTOKEN
+        $headers = @{ "x-ms-date" = [System.DateTime]::UtcNow.ToString("R"); "x-ms-blob-type" = "BlockBlob" }
+        Invoke-RestMethod -Headers $headers -Uri $uri -Method PUT -Body (Get-Content -Raw -Path $reportFile)
+    }
+    else {
+        Write-Host "Datalake publishing skipped, due to absent configuration"
+    }
 }
 
 # Detect when dot sourcing the script, so we don't immediately execute anything when running Pester

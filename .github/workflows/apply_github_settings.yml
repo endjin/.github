@@ -35,3 +35,8 @@ jobs:
           GITHUB_APP_ID: ${{ secrets.DEPENDJINBOT_APP_ID }}
           GITVERSION_NUGETVER: ${{ steps.run_gitversion.outputs.nuGetVersionV2 }}
           CONFIG_REPO: ${{ github.event.inputs.config_repo }}
+          DATALAKE_NAME: ${{ secrets.DATALAKE_NAME }}
+          DATALAKE_FILESYSTEM: ${{ secrets.DATALAKE_FILESYSTEM }}
+          DATALAKE_DIRECTORY: ${{ secrets.DATALAKE_DIRECTORY }}
+          DATALAKE_SASTOKEN: ${{ secrets.DATALAKE_SASTOKEN }}
+          
