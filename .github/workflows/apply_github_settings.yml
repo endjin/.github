@@ -5,6 +5,8 @@ on:
       config_repo:
         default: live
         required: true
+  schedule:
+    - cron: '0 3 * * *'  # every day at 3am
 
 jobs:
   apply_github_settings:
