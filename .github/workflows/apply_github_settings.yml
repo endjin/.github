@@ -5,6 +5,9 @@ on:
       config_repo:
         default: live
         required: true
+      dry_run_mode:
+        default: false
+        required: false
   schedule:
     - cron: '0 3 * * *'  # every day at 3am
 
@@ -30,7 +33,12 @@ jobs:
             Write-Error "Could not find config repo path: $repoPath"
             exit 1
           }
-          ./codeops-scripts/apply-github-settings.ps1 -ConfigDirectory $repoPath -WhatIf
+          
+          # process dry_run_mode flag, if specified
+          $dryRunMode = $null
+          $dryRunMode = [bool]::TryParse($env:DYRUN_MODE, [ref]$dryRunMode) ? $dryRunMode : $false
+
+          ./codeops-scripts/apply-github-settings.ps1 -ConfigDirectory $repoPath -WhatIf:$dryRunMode
         shell: pwsh
         env:
           SSH_PRIVATE_KEY: ${{ secrets.DEPENDJINBOT_PRIVATE_KEY }}
@@ -41,4 +49,5 @@ jobs:
           DATALAKE_FILESYSTEM: ${{ secrets.DATALAKE_FILESYSTEM }}
           DATALAKE_DIRECTORY: ${{ secrets.DATALAKE_DIRECTORY }}
           DATALAKE_SASTOKEN: ${{ secrets.DATALAKE_SASTOKEN }}
+          DRYRUN_MODE: ${{ github.event.inputs.dry_run_mode }}
           
