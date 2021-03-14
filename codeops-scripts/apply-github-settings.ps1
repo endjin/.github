@@ -34,9 +34,7 @@ $requiredModules | ForEach-Object {
 }
 
 
-#
-# Helper functions
-#
+#region Helper functions
 function _getAllOrgReposWithDefaults {
     [CmdletBinding()]
     param (
@@ -147,6 +145,7 @@ function _processOrg {
     }
     return $orgResults
 }
+#endregion
 
 function _main {
     $runResults = [ordered]@{}
@@ -225,6 +224,9 @@ if (!$MyInvocation.Line.StartsWith('. ')) {
     # setup the default policy settings
     $defaultSettings = getDefaultSettingsPolicy
 
+    if ($WhatIf) {
+        Write-Host "*** Running in DryRun Mode ***"
+    }
     _main
     exit 0
 }

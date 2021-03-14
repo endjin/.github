@@ -36,7 +36,7 @@ jobs:
           
           # process dry_run_mode flag, if specified
           $dryRunMode = $null
-          $dryRunMode = [bool]::TryParse($env:DYRUN_MODE, [ref]$dryRunMode) ? $dryRunMode : $false
+          $dryRunMode = [bool]::TryParse($env:DRYRUN_MODE, [ref]$dryRunMode) ? $dryRunMode : $false
 
           ./codeops-scripts/apply-github-settings.ps1 -ConfigDirectory $repoPath -WhatIf:$dryRunMode
         shell: pwsh
