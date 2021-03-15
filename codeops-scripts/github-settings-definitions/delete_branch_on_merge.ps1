@@ -15,6 +15,7 @@ function delete_branch_on_merge {
     $requiredValue = $true
 
     $result = @{
+        fix_applied = $false
         before = ""
         after = ""
         expected = $requiredValue
@@ -25,6 +26,7 @@ function delete_branch_on_merge {
         $current = Invoke-GitHubRestMethod -Uri "https://api.github.com/repos/$Org/$RepoName"
         $result.before = $current.delete_branch_on_merge
         if ($current.delete_branch_on_merge -ne $requiredValue) {
+            $result.fix_applied = $true
             if ($PSCmdlet.ShouldProcess($RepoName, 'delete_branch_on_merge')) {
                 $resp = Invoke-GitHubRestMethod -Uri "https://api.github.com/repos/$Org/$RepoName" `
                     -Verb PATCH `
