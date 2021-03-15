@@ -18,7 +18,7 @@ function default_branch_protection {
     }
 
     $result = @{
-        fix_required = $false
+        is_compliant = ""
         before = ""
         after = ""
         expected = $requiredValue
@@ -69,7 +69,7 @@ function default_branch_protection {
                 $currentPolicy.enforce_admins -eq $body.enforce_admins
             ) {
                 # track policy breach & apply branch protection policy
-                $result.fix_required = $true
+                $result.is_compliant = $false
                 if ($PSCmdlet.ShouldProcess($RepoName, 'default_branch_protection')) {
                     $resp = Invoke-GitHubRestMethod -Uri "https://api.github.com/repos/$Org/$RepoName/branches/$defaultBranch/protection" `
                                                     -Verb PUT `
@@ -82,6 +82,7 @@ function default_branch_protection {
             }
             else {
                 # already up-to-date
+                $result.is_compliant = $true
                 $result.after = $requiredValue
             }
         }
