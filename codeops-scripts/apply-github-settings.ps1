@@ -171,7 +171,12 @@ function _main {
                     -AppPrivateKey $env:SSH_PRIVATE_KEY `
                     -OrgName $org
                 
-                $env:GITHUB_TOKEN = $accessToken
+                if ($accessToken) {
+                    $env:GITHUB_TOKEN = $accessToken
+                }
+                else {
+                    throw "There was a problem obtaining an access token for '$org' (GitHubAppId=$($env:GITHUB_APP_ID)"
+                }
             }
 
             [array]$orgRepoConfigs = $reposFromYaml | Where-Object { $_.org -eq $org }
