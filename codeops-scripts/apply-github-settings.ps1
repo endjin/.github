@@ -201,7 +201,7 @@ function _main {
     # Upload JSON report to datalake
     if ($env:DATALAKE_NAME -and $env:DATALAKE_SASTOKEN -and $env:DATALAKE_FILESYSTEM -and $env:DATALAKE_DIRECTORY) {
         Write-Host "Publishing report to datalake: $($env:DATALAKE_NAME)"
-        $timestamp = (Get-Date).ToUniversalTime().ToString('yyyyMMddHHmmssfff')
+        $timestamp = $runMetadata.start_time.ToString('yyyyMMddHHmmssfff')
         # name the file differently for real runs and dry runs
         $filename = $WhatIf ? "dryrun-$timestamp.json" : "run-$timestamp.json"
         $uri = "https://{0}.blob.core.windows.net/{1}/{2}/github_settings/raw/{3}?{4}" -f $env:DATALAKE_NAME,
