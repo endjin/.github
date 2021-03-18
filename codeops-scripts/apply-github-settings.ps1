@@ -4,7 +4,7 @@
 # This script is responsible for ensuring all GitHub repositories are
 # configured as per a policy of defined repository settings.
 #
-# For example, enforcing a branch protection.
+# For example, enforcing a branch protection policy.
 # 
 
 [CmdletBinding()]
@@ -19,9 +19,10 @@ $here = Split-Path -Parent $PSCommandPath
 # Install other module dependencies
 $requiredModules = @(
     @{ Name = "Endjin.CodeOps"; Version = "0.2.3" }
+    @{ Name = "Endjin.GitHubActions"; Version = "1.0.1" }
 )
 $requiredModules | ForEach-Object {
-    if ( !(Get-Module -ListAvailable $_ | Where-Object { $_.Version -eq $_.Version }) ) {
+    if ( !(Get-Module -ListAvailable $_.Name | Where-Object { $_.Version -eq $_.Version }) ) {
         Install-Module -Name $_.Name `
                        -RequiredVersion $_.Version `
                        -AllowPrerelease:($_.Version -match '-') `
@@ -33,9 +34,7 @@ $requiredModules | ForEach-Object {
 }
 
 
-#
-# Helper functions
-#
+#region Helper functions
 function _getAllOrgReposWithDefaults {
     [CmdletBinding()]
     param (
@@ -113,45 +112,55 @@ function _processOrg {
     # update $reposToProcess with any per-repo overrides defined in the yaml files
     $reposToProcess = _mergeSettingsOverrides -RepoOverrides $RepoConfig -RepoDefaults $reposToProcess
 
+    $orgResults = @{}
     # 'name' can be a YAML list for repos that share the same config settings
     foreach ($repoName in $reposToProcess.Keys) {
-        try {
-            Write-Host "`nOrg: $Org - Repo: $repoName`n" -f green
 
-            foreach ($settingKey in $reposToProcess[$repoName].Keys) {
-                $setting = $reposToProcess[$repoName].$settingKey
+        Write-Host "`nOrg: $Org - Repo: $repoName`n" -f green
+
+        $repoResults = @{}
+
+        foreach ($settingKey in $reposToProcess[$repoName].Keys) {
+            $setting = $reposToProcess[$repoName].$settingKey
+
+            try {
                 # dynamically call the handler which should be a function with the same name
                 if (Test-Path function:/$settingKey) {
-                    Invoke-Expression ('{0} -Org $Org -RepoName $repoName -Setting $setting -WhatIf:$WhatIf' -f $settingKey)
+                    $settingResult = Invoke-Expression ('{0} -Org $Org -RepoName $repoName -Setting $setting -WhatIf:$WhatIf' -f $settingKey)
+
+                    # add the results from the setting policy handler
+                    $repoResults += @{ $settingKey = $settingResult }
                 }
                 else {
                     throw "The handler for '$settingKey' could not be found."
                 }
             }
+            catch {
+                Log-Warning -Message "Error processing '$settingKey' for $repoName - $($_.Exception.Message)"
+                # set the error property on the result object
+                $repoResults += @{ $settingKey = @{ error = $_.Exception.Message } }
+            }
         }
-        catch {
-            # Track the failed repo, before continuing with the rest
-            $failedRepoName = '{0}/{1}' -f $Org, $repoName
-            $script:failedRepos += $failedRepoName
-            $ErrorActionPreference = "Continue"
-            $errorMessage = "Processing the repository '$failedRepoName' reported the following error: $($_.Exception.Message)"
-            Log-Error -Message $errorMessage
-            Write-Error $errorMessage
-            Write-Warning $_.ScriptStackTrace
-            Write-Warning "Processing of remaining repositories will continue"
-            $ErrorActionPreference = "Stop"
-        }
+        $orgResults += @{ $repoName = $repoResults }
     }
+    return $orgResults
 }
+#endregion
 
 function _main {
+    $runResults = [ordered]@{}
+    $runMetadata = [ordered]@{ 
+        start_time = [datetime]::UtcNow
+        is_dry_run = [bool]$WhatIf
+    }
+
     # Read all existing repo config that might have specific settings configured
     $reposFromYaml = [array](Get-AllRepoConfiguration -ConfigDirectory $ConfigDirectory -LocalMode | Where-Object { $_ })
 
     # Read all the repos across our orgs
     $allOrgs = _getAllOrgs $reposFromYaml
 
-    $script:failedRepos = @()   
+    $allOrgResults = [ordered]@{}
     foreach ($org in $allOrgs) {
         try {
             # When running in GitHub Actions we will need ensure the GitHub App is
@@ -162,11 +171,17 @@ function _main {
                     -AppPrivateKey $env:SSH_PRIVATE_KEY `
                     -OrgName $org
                 
-                $env:GITHUB_TOKEN = $accessToken
+                if ($accessToken) {
+                    $env:GITHUB_TOKEN = $accessToken
+                }
+                else {
+                    throw "There was a problem obtaining an access token for '$org' (GitHubAppId=$($env:GITHUB_APP_ID)"
+                }
             }
 
             [array]$orgRepoConfigs = $reposFromYaml | Where-Object { $_.org -eq $org }
-            _processOrg -Org $org -RepoConfig $orgRepoConfigs
+            $orgResults = _processOrg -Org $org -RepoConfig $orgRepoConfigs
+            $allOrgResults += @{ $org = $orgResults }
         }
         catch {
             Log-Error -Message $_.Exception.Message
@@ -175,11 +190,30 @@ function _main {
         }
     }
 
-    if ($script:failedRepos.Count -gt 0) {
-        $ErrorActionPreference = "Continue"
-        $errorMessage = "The following repositories reported errors during processing:`n{0}" -f ($script:failedRepos -join "`n")
-        Write-Error $errorMessage
-        exit 1
+    $runMetadata += @{ end_time = [datetime]::UtcNow }
+    $runResults += @{ metadata = $runMetadata }
+    $runResults += @{ orgs = $allOrgResults }
+
+    # Produce a JSON report file
+    $reportFile = "apply-github-settings-report.json"
+    $runResults | ConvertTo-Json -Depth 30 | Out-File $reportFile -Force
+
+    # Upload JSON report to datalake
+    if ($env:DATALAKE_NAME -and $env:DATALAKE_SASTOKEN -and $env:DATALAKE_FILESYSTEM -and $env:DATALAKE_DIRECTORY) {
+        Write-Host "Publishing report to datalake: $($env:DATALAKE_NAME)"
+        $timestamp = $runMetadata.start_time.ToString('yyyyMMddHHmmssfff')
+        # name the file differently for real runs and dry runs
+        $filename = $WhatIf ? "dryrun-$timestamp.json" : "run-$timestamp.json"
+        $uri = "https://{0}.blob.core.windows.net/{1}/{2}/github_settings/raw/{3}?{4}" -f $env:DATALAKE_NAME,
+                                                                    $env:DATALAKE_FILESYSTEM,
+                                                                    $env:DATALAKE_DIRECTORY,
+                                                                    $filename,
+                                                                    $env:DATALAKE_SASTOKEN
+        $headers = @{ "x-ms-date" = [System.DateTime]::UtcNow.ToString("R"); "x-ms-blob-type" = "BlockBlob" }
+        Invoke-RestMethod -Headers $headers -Uri $uri -Method PUT -Body (Get-Content -Raw -Path $reportFile)
+    }
+    else {
+        Write-Host "Datalake publishing skipped, due to absent configuration"
     }
 }
 
@@ -195,6 +229,9 @@ if (!$MyInvocation.Line.StartsWith('. ')) {
     # setup the default policy settings
     $defaultSettings = getDefaultSettingsPolicy
 
+    if ($WhatIf) {
+        Write-Host "*** Running in DryRun Mode ***"
+    }
     _main
     exit 0
 }
