@@ -5,7 +5,7 @@ on:
 
 jobs:
   run_tests:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     name: Run Pester tests
     steps:
     - uses: actions/checkout@v2
