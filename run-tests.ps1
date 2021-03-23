@@ -1,15 +1,16 @@
 $ErrorActionPreference = 'Stop'
 $here = Split-Path -Parent $PSCommandPath
 $pesterVer = '4.10.1'
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 try {
+    $PSVersionTable | fl | out-string | Write-Host
     Get-PackageProvider | ft | out-string | Write-Host
     Get-PSRepository | ft | Out-String | Write-Host
     
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     $psGallery = Get-PSRepository | Where-Object { $_.SourceLocation -eq "https://www.powershellgallery.com/api/v2" }
     if (!$psGallery) {
         Write-Host "Registering PSGallery"
-        Register-PSRepository -Default -InstallationPolicy Trusted
+        Register-PSRepository -Default -Verbose -InstallationPolicy Trusted
         $psGallery = Get-PSRepository | Where-Object { $_.SourceLocation -eq "https://www.powershellgallery.com/api/v2" }
     }
     
