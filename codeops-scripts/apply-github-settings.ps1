@@ -25,11 +25,16 @@ foreach ($requiredModule in $requiredModules) {
     $alreadyInstalled = Get-Module -ListAvailable $requiredModule.Name -Verbose:$false | `
                             Where-Object { $requiredModule.Version -eq $_.Version }
     if (!$alreadyInstalled) {
+        $psGallery = Get-PSRepository | Where-Object { $_.SourceLocation -eq "https://www.powershellgallery.com/api/v2" }
+        if (!$psGallery) {
+            Register-PSRepository -Default -InstallationPolicy Trusted -Force
+            $psGallery = Get-PSRepository | Where-Object { $_.SourceLocation -eq "https://www.powershellgallery.com/api/v2" }
+        }
         Install-Module -Name $requiredModule.Name `
                        -RequiredVersion $requiredModule.Version `
                        -AllowPrerelease:($requiredModule.Version -match '-') `
                        -Scope CurrentUser `
-                       -Repository PSGallery `
+                       -Repository $psGallery.Name `
                        -Force
     }
     Import-Module -Name $requiredModule.Name -RequiredVersion $requiredModule.Version -Verbose:$false

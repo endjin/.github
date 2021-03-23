@@ -16,7 +16,12 @@ try {
     )
     $requiredModules | ForEach-Object {
         if (!(Get-Module -ListAvailable $_) ) {
-            Install-Module $_ -Force -Scope CurrentUser -Repository PSGallery
+            $psGallery = Get-PSRepository | Where-Object { $_.SourceLocation -eq "https://www.powershellgallery.com/api/v2" }
+            if (!$psGallery) {
+                Register-PSRepository -Default -InstallationPolicy Trusted -Force
+                $psGallery = Get-PSRepository | Where-Object { $_.SourceLocation -eq "https://www.powershellgallery.com/api/v2" }
+            }
+            Install-Module $_ -Force -Scope CurrentUser -Repository $psGallery.Name
         }
     }
 
