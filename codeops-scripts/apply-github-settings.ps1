@@ -19,22 +19,43 @@ $here = Split-Path -Parent $PSCommandPath
 # Install other module dependencies
 $requiredModules = @(
     @{ Name = "Endjin.CodeOps"; Version = "0.2.3" }
-    @{ Name = "Endjin.GitHubActions"; Version = "1.0.1" }
+    @{ Name = "Endjin.GitHubActions"; Version = "1.0.3" }
 )
-$requiredModules | ForEach-Object {
-    if ( !(Get-Module -ListAvailable $_.Name | Where-Object { $_.Version -eq $_.Version }) ) {
-        Install-Module -Name $_.Name `
-                       -RequiredVersion $_.Version `
-                       -AllowPrerelease:($_.Version -match '-') `
+foreach ($requiredModule in $requiredModules) {
+    $alreadyInstalled = Get-Module -ListAvailable $requiredModule.Name -Verbose:$false | `
+                            Where-Object { $requiredModule.Version -eq $_.Version }
+    if (!$alreadyInstalled) {
+        Install-Module -Name $requiredModule.Name `
+                       -RequiredVersion $requiredModule.Version `
+                       -AllowPrerelease:($requiredModule.Version -match '-') `
                        -Scope CurrentUser `
                        -Repository PSGallery `
                        -Force
     }
-    Import-Module -Name $_.Name -RequiredVersion $_.Version
+    Import-Module -Name $requiredModule.Name -RequiredVersion $requiredModule.Version -Verbose:$false
 }
 
 
 #region Helper functions
+function _logError
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$true)]
+        [ErrorRecord] $ErrorRecord,
+
+        [Parameter(Mandatory=$true)]
+        [ErrorRecord] $Message
+    )
+
+    Log-Error -Message $Message `
+                -FileName $ErrorRecord.InvocationInfo.ScriptName `
+                -Line $ErrorRecord.InvocationInfo.Line `
+                -Column $ErrorRecord.InvocationInfo.OffsetInLine
+    Write-Error $Message
+    Write-Host $ErrorRecord.InvocationInfo.PositionMessage
+    Write-Host $ErrorRecord.ScriptStackTrace
+}
 function _getAllOrgReposWithDefaults {
     [CmdletBinding()]
     param (
@@ -136,7 +157,9 @@ function _processOrg {
                 }
             }
             catch {
-                Log-Warning -Message "Error processing '$settingKey' for $repoName - $($_.Exception.Message)"
+                _logError -Message "Error processing '$settingKey' for $repoName - $($_.Exception.Message)" `
+                          -ErrorRecord $_ `
+                          -ErrorAction "Continue"
                 # set the error property on the result object
                 $repoResults += @{ $settingKey = @{ error = $_.Exception.Message } }
             }
@@ -152,6 +175,7 @@ function _main {
     $runMetadata = [ordered]@{ 
         start_time = [datetime]::UtcNow
         is_dry_run = [bool]$WhatIf
+        success = $true
     }
 
     # Read all existing repo config that might have specific settings configured
@@ -181,12 +205,22 @@ function _main {
 
             [array]$orgRepoConfigs = $reposFromYaml | Where-Object { $_.org -eq $org }
             $orgResults = _processOrg -Org $org -RepoConfig $orgRepoConfigs
+
+            # check org run for errors
+            $hasErrors = $orgResults.Keys | ForEach-Object {
+                $repo = $_; $orgResults[$repo].Keys | `
+                Where-Object { 'error' -in $orgResults[$repo][$_].Keys }
+            }
+            if ($hasErrors) {
+                $runMetadata.success = $false
+            }
             $allOrgResults += @{ $org = $orgResults }
         }
         catch {
-            Log-Error -Message $_.Exception.Message
-            Write-Warning $_.ScriptStackTrace
-            Write-Error $_.Exception.Message
+            $runMetadata.success = $false
+            _logError -Message $_.Exception.Message `
+                      -ErrorRecord $_ `
+                      -ErrorAction "Continue"
         }
     }
 
@@ -210,10 +244,17 @@ function _main {
                                                                     $filename,
                                                                     $env:DATALAKE_SASTOKEN
         $headers = @{ "x-ms-date" = [System.DateTime]::UtcNow.ToString("R"); "x-ms-blob-type" = "BlockBlob" }
-        Invoke-RestMethod -Headers $headers -Uri $uri -Method PUT -Body (Get-Content -Raw -Path $reportFile)
+        Invoke-RestMethod -Headers $headers -Uri $uri -Method PUT -Body (Get-Content -Raw -Path $reportFile) -Verbose:$false | Out-Null
     }
     else {
         Write-Host "Datalake publishing skipped, due to absent configuration"
+    }
+
+    if ($runMetadata.success) {
+        return 0
+    }
+    else {
+        return 1
     }
 }
 
@@ -232,6 +273,6 @@ if (!$MyInvocation.Line.StartsWith('. ')) {
     if ($WhatIf) {
         Write-Host "*** Running in DryRun Mode ***"
     }
-    _main
-    exit 0
+    $statusCode = _main
+    exit $statusCode
 }

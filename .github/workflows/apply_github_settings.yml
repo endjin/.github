@@ -5,9 +5,11 @@ on:
       config_repo:
         default: live
         required: true
+        description: Sets the folder used as the root of the configuration repo
       dry_run_mode:
-        default: false
+        default: 'false'
         required: false
+        description: When true, the run will not apply any changes
   schedule:
     - cron: '0 3 * * *'  # every day at 3am
 
@@ -38,12 +40,11 @@ jobs:
           $dryRunMode = $null
           $dryRunMode = [bool]::TryParse($env:DRYRUN_MODE, [ref]$dryRunMode) ? $dryRunMode : $false
 
-          ./codeops-scripts/apply-github-settings.ps1 -ConfigDirectory $repoPath -WhatIf:$dryRunMode
+          ./codeops-scripts/apply-github-settings.ps1 -ConfigDirectory $repoPath -WhatIf:$dryRunMode -Verbose
         shell: pwsh
         env:
           SSH_PRIVATE_KEY: ${{ secrets.DEPENDJINBOT_PRIVATE_KEY }}
           GITHUB_APP_ID: ${{ secrets.DEPENDJINBOT_APP_ID }}
-          GITVERSION_NUGETVER: ${{ steps.run_gitversion.outputs.nuGetVersionV2 }}
           CONFIG_REPO: ${{ github.event.inputs.config_repo }}
           DATALAKE_NAME: ${{ secrets.DATALAKE_NAME }}
           DATALAKE_FILESYSTEM: ${{ secrets.DATALAKE_FILESYSTEM }}
