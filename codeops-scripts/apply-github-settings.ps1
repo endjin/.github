@@ -27,8 +27,10 @@ foreach ($requiredModule in $requiredModules) {
     if (!$alreadyInstalled) {
         $psGallery = Get-PSRepository | Where-Object { $_.SourceLocation -eq "https://www.powershellgallery.com/api/v2" }
         if (!$psGallery) {
+            Write-Host "Attempting to register the PowerShell Gallery package repository"
             Register-PSRepository -Default -InstallationPolicy Trusted
-            $psGallery = Get-PSRepository | Where-Object { $_.SourceLocation -eq "https://www.powershellgallery.com/api/v2" }
+            $psGallery = Get-PSRepository PSGallery
+            if (!$psGallery) { throw "There was an issue setting-up the PowerShell Gallery package repository - check previous log messages"}
         }
         Install-Module -Name $requiredModule.Name `
                        -RequiredVersion $requiredModule.Version `
