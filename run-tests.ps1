@@ -2,10 +2,17 @@ $ErrorActionPreference = 'Stop'
 $here = Split-Path -Parent $PSCommandPath
 $pesterVer = '4.10.1'
 try {
+    $psGallery = Get-PSRepository | Where-Object { $_.SourceLocation -eq "https://www.powershellgallery.com/api/v2" }
+    if (!$psGallery) {
+        Write-Host "Registering PSGallery"
+        Register-PSRepository -Default -InstallationPolicy Trusted
+        $psGallery = Get-PSRepository | Where-Object { $_.SourceLocation -eq "https://www.powershellgallery.com/api/v2" }
+    }
+    
     # Ensure we use tour targetted version of Pester
     [array]$existingModule = Get-Module -ListAvailable Pester
     if (!$existingModule -or ($existingModule.Version -notcontains $pesterVer)) {
-        Install-Module Pester -RequiredVersion $pesterVer -Force -Scope CurrentUser -Repository PSGallery
+        Install-Module Pester -RequiredVersion $pesterVer -Force -Scope CurrentUser -Repository $psGallery.Name
     }
     Import-Module Pester -Version $pesterVer
 
@@ -16,11 +23,6 @@ try {
     )
     $requiredModules | ForEach-Object {
         if (!(Get-Module -ListAvailable $_) ) {
-            $psGallery = Get-PSRepository | Where-Object { $_.SourceLocation -eq "https://www.powershellgallery.com/api/v2" }
-            if (!$psGallery) {
-                Register-PSRepository -Default -InstallationPolicy Trusted -Force
-                $psGallery = Get-PSRepository | Where-Object { $_.SourceLocation -eq "https://www.powershellgallery.com/api/v2" }
-            }
             Install-Module $_ -Force -Scope CurrentUser -Repository $psGallery.Name
         }
     }

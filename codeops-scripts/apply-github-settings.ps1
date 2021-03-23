@@ -27,7 +27,7 @@ foreach ($requiredModule in $requiredModules) {
     if (!$alreadyInstalled) {
         $psGallery = Get-PSRepository | Where-Object { $_.SourceLocation -eq "https://www.powershellgallery.com/api/v2" }
         if (!$psGallery) {
-            Register-PSRepository -Default -InstallationPolicy Trusted -Force
+            Register-PSRepository -Default -InstallationPolicy Trusted
             $psGallery = Get-PSRepository | Where-Object { $_.SourceLocation -eq "https://www.powershellgallery.com/api/v2" }
         }
         Install-Module -Name $requiredModule.Name `
