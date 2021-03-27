@@ -18,7 +18,7 @@ $here = Split-Path -Parent $PSCommandPath
 
 # Install other module dependencies
 $requiredModules = @(
-    @{ Name = "Endjin.CodeOps"; Version = "0.2.3" }
+    @{ Name = "Endjin.CodeOps"; Version = "0.2.4" }
     @{ Name = "Endjin.GitHubActions"; Version = "1.0.3" }
 )
 foreach ($requiredModule in $requiredModules) {
@@ -50,16 +50,16 @@ function _logError
         [ErrorRecord] $ErrorRecord,
 
         [Parameter(Mandatory=$true)]
-        [ErrorRecord] $Message
+        [string] $Message
     )
 
     Log-Error -Message $Message `
                 -FileName $ErrorRecord.InvocationInfo.ScriptName `
-                -Line $ErrorRecord.InvocationInfo.Line `
+                -Line $ErrorRecord.InvocationInfo.ScriptLineNumber `
                 -Column $ErrorRecord.InvocationInfo.OffsetInLine
     Write-Error $Message
-    Write-Host $ErrorRecord.InvocationInfo.PositionMessage
-    Write-Host $ErrorRecord.ScriptStackTrace
+    Write-Information $ErrorRecord.InvocationInfo.PositionMessage -InformationAction:Continue
+    Write-Information $ErrorRecord.ScriptStackTrace -InformationAction:Continue
 }
 function _getAllOrgReposWithDefaults {
     [CmdletBinding()]
