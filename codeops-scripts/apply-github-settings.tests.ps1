@@ -50,7 +50,7 @@ Describe "Applying standard GitHub settings" {
         default_branch_protection = $true
     }
 
-    Mock Invoke-GitHubRestMethod { $allReposJson | ConvertFrom-Json -Depth 30 -AsHashtable }
+    Mock Invoke-GitHubRestMethod { $allReposJson | ConvertFrom-Json -Depth 100 -AsHashtable }
 
     
     Context "Merging settings overrides - single project YAML entries" {

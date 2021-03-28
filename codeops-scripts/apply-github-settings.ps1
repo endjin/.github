@@ -18,7 +18,7 @@ $here = Split-Path -Parent $PSCommandPath
 
 # Install other module dependencies
 $requiredModules = @(
-    @{ Name = "Endjin.CodeOps"; Version = "0.2.4" }
+    @{ Name = "Endjin.CodeOps"; Version = "0.2.5" }
     @{ Name = "Endjin.GitHubActions"; Version = "1.0.3" }
 )
 foreach ($requiredModule in $requiredModules) {
@@ -235,7 +235,7 @@ function _main {
 
     # Produce a JSON report file
     $reportFile = "apply-github-settings-report.json"
-    $runResults | ConvertTo-Json -Depth 30 | Out-File $reportFile -Force
+    $runResults | ConvertTo-Json -Depth 100 | Out-File $reportFile -Force
 
     # Upload JSON report to datalake
     if ($env:DATALAKE_NAME -and $env:DATALAKE_SASTOKEN -and $env:DATALAKE_FILESYSTEM -and $env:DATALAKE_DIRECTORY) {
