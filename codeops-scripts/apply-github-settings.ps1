@@ -73,6 +73,7 @@ function _getAllOrgReposWithDefaults {
 
     $allRepos = Invoke-GitHubRestMethod -Uri "https://api.github.com/orgs/$Org/repos?per_page=100" `
                                         -AllPages | `
+                    Where-Object { -not $_.archived } | `
                     Select-Object -ExpandProperty name
     $reposToProcess = @{}
     $allRepos | ForEach-Object {
