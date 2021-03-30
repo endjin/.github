@@ -32,9 +32,9 @@ jobs:
           }
           Install-Module powershell-yaml -Force -Scope CurrentUser -Repository $psGallery.Name
 
-          # process and validate the supplied config repo to use - default to 'test' if blank for some reason
+          # process and validate the supplied config repo to use - default to 'live' if blank (e.g. not triggered via workflow_dispatch)
           if ([string]::IsNullOrEmpty($env:CONFIG_REPO)) {
-            $env:CONFIG_REPO = 'test'
+            $env:CONFIG_REPO = 'live'
           }
           $repoPath = "repos/$($env:CONFIG_REPO)"
           if (!(Test-Path $repoPath)) {

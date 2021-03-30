@@ -50,16 +50,26 @@ function _logError
         [ErrorRecord] $ErrorRecord,
 
         [Parameter(Mandatory=$true)]
-        [string] $Message
+        [string] $Message,
+
+        [switch] $IsTerminating
     )
 
+    switch($IsTerminating)
+    {
+        $true { $errorAction = "Stop" }
+        $false { $errorAction = "Continue" }
+    }
+
+    # GitHub Actions-formatted error logging
     Log-Error -Message $Message `
                 -FileName $ErrorRecord.InvocationInfo.ScriptName `
                 -Line $ErrorRecord.InvocationInfo.ScriptLineNumber `
                 -Column $ErrorRecord.InvocationInfo.OffsetInLine
-    Write-Error $Message
+
     Write-Information $ErrorRecord.InvocationInfo.PositionMessage -InformationAction:Continue
     Write-Information $ErrorRecord.ScriptStackTrace -InformationAction:Continue
+    Write-Error $Message -ErrorAction $errorAction
 }
 function _getAllOrgReposWithDefaults {
     [CmdletBinding()]
@@ -164,8 +174,7 @@ function _processOrg {
             }
             catch {
                 _logError -Message "Error processing '$settingKey' for $repoName - $($_.Exception.Message)" `
-                          -ErrorRecord $_ `
-                          -ErrorAction "Continue"
+                          -ErrorRecord $_
                 # set the error property on the result object
                 $repoResults += @{ $settingKey = @{ error = $_.Exception.Message } }
             }
@@ -225,8 +234,7 @@ function _main {
         catch {
             $runMetadata.success = $false
             _logError -Message $_.Exception.Message `
-                      -ErrorRecord $_ `
-                      -ErrorAction "Continue"
+                      -ErrorRecord $_
         }
     }
 
