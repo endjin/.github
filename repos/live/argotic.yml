@@ -5,4 +5,6 @@ repos:
     prAutoflowSettings:
       AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
       - Endjin.*
+      - System.*
+      - MSTest.*
       AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: []
