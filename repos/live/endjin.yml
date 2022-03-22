@@ -1,4 +1,5 @@
 repos:
+  # repos with the standard constrained auto-merge and disabled auto-release behaviours
   - org: endjin
     name:
     - Endjin.GitHubActions.PowerShell 
@@ -12,6 +13,16 @@ repos:
     specflowMetaPackageSettings:
       enabled: false
     syncWorkflowTemplates: false
+
+  # repos with disabled auto-merge/auto-release behaviours
+  - org: endjin
+    name:
+    - Z3.Linq
+    prAutoflowSettings:
+      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: []
+      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: []
+
+  # repos with custom github settings policies
   - org: endjin
     name: test-data-gen
     githubSettings:
