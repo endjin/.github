@@ -7,6 +7,7 @@ repos:
     - Corvus.Configuration
     - Corvus.ContentHandling
     - Corvus.Deployment
+    - Corvus.Deployment.PowerBi.Cli
     - Corvus.DotLiquidAsync
     - Corvus.EventStore
     - Corvus.Extensions
