@@ -16,6 +16,7 @@ repos:
     - Corvus.Extensions.Newtonsoft.Json
     - Corvus.Extensions.System.Text.Json
     - Corvus.Identity
+    - Corvus.JsonSchema
     - Corvus.Leasing
     - Corvus.Monitoring
     - Corvus.Retry
@@ -39,6 +40,7 @@ repos:
       - Corvus.Extensions.Newtonsoft.Json
       - Corvus.Extensions.System.Text.Json
       - Corvus.Identity
+      - Corvus.JsonSchema
       - Corvus.Leasing
       - Corvus.Monitoring
       - Corvus.Retry
