@@ -14,6 +14,17 @@ repos:
       enabled: false
     syncWorkflowTemplates: false
 
+  # custom auto-merge policy for Endjin.SemVer.DotNetApi
+  - org: endjin
+    name:
+    - Endjin.SemVer.DotNetApi
+    prAutoflowSettings:
+      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS:
+      - Endjin.*
+      - Microsoft.Extensions.*
+      - System.Interactive
+      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: []
+
   # repos with disabled auto-merge/auto-release behaviours
   - org: endjin
     name:
