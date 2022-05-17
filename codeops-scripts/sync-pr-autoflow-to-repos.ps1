@@ -66,7 +66,11 @@ function _repoChanges($OrgName, $RepoName)
                 $Null
             }
         } | Where-Object {
-            ($_ -ne $Null) -and (!$_.PreReleaseLabel)
+            # Builds of 'main' will produce a 'preview' pre-release version by default - only tagged versions
+            # produce stable version numbers.
+            # However, the 'next-version' value should reflect the current version number of the 'main' branch,
+            # so we should not ignore 'preview' pre-release tags.
+            ($_ -ne $Null) -and (!$_.PreReleaseLabel -or $_.PreReleaseLabel.StartsWith("preview.") )
         }
 
         if ($semVers) {
