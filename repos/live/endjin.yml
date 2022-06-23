@@ -5,6 +5,8 @@ repos:
     - Endjin.GitHubActions.PowerShell 
     - Endjin.CodeOps.PowerShell
     - modern-data-platform
+    - backstage-poc
+    - endjin-azure-infra
     prAutoflowSettings:
       AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS:
       - Endjin.*
