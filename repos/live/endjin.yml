@@ -7,6 +7,7 @@ repos:
     - modern-data-platform
     - backstage-poc
     - endjin-azure-infra
+    - AzAppConfigToUserSecrets
     prAutoflowSettings:
       AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS:
       - Endjin.*
