@@ -23,6 +23,7 @@ repos:
     - Corvus.Storage
     - Corvus.Tenancy
     - Corvus.Testing
+    - Corvus.UriTemplates
     prAutoflowSettings:
       AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
       - Endjin.*
