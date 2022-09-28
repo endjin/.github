@@ -32,13 +32,6 @@ jobs:
           pwsh -noprofile -c 'dotnet-gitversion /diag'
           pwsh -noprofile -c '(dotnet-gitversion | ConvertFrom-Json).psobject.properties | % { echo ("::set-output name={0}::{1}" -f $_.name, $_.value) }'
       
-      - name: Install GH CLI
-        run: |
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
-          sudo apt-add-repository -u https://cli.github.com/packages
-          sudo apt install gh
-        shell: bash
-      
       - name: Run sync-pr-autoflow-to-repos.ps1
         run: |
           Install-Module powershell-yaml -Force -Scope CurrentUser -Repository PSGallery
