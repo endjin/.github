@@ -8,6 +8,9 @@ repos:
     - backstage-poc
     - endjin-azure-infra
     - AzAppConfigToUserSecrets
+    - Endjin.Mdp.Bicep
+    - Endjin.RecommendedPractices.Bicep
+    - Endjin.RecommendedPractices.Build
     prAutoflowSettings:
       AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS:
       - Endjin.*
