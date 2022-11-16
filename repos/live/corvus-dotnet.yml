@@ -24,6 +24,7 @@ repos:
     - Corvus.Tenancy
     - Corvus.Testing
     - Corvus.UriTemplates
+    - Corvus.Globbing
     prAutoflowSettings:
       AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: 
       - Endjin.*
@@ -33,7 +34,6 @@ repos:
       - Corvus.AzureFunctionsKeepAlive
       - Corvus.Configuration
       - Corvus.ContentHandling
-      - Corvus.Deployment
       - Corvus.DotLiquidAsync
       - Corvus.EventStore
       - Corvus.Extensions
@@ -47,3 +47,5 @@ repos:
       - Corvus.Retry
       - Corvus.Storage
       - Corvus.Tenancy
+      - Corvus.UriTemplates
+      - Corvus.Globbing
