@@ -51,7 +51,7 @@ function _repoChanges($OrgName, $RepoName)
     $workflowsToRemove | ForEach-Object {
         $fileToRemove = Join-Path $workflowsFolder $_
         if (Test-Path $fileToRemove) {
-            Remove-Item $fileToRemove -Force
+            Remove-Item $fileToRemove -Force -Verbose:$true
         }
     }
 
