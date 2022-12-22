@@ -35,10 +35,24 @@ function _repoChanges($OrgName, $RepoName)
         New-Item $workflowsFolder -Force -ItemType Directory
     }
 
-    @("auto_merge.yml", "auto_release.yml", "dependabot_approve_and_label.yml") | ForEach-Object {
+    $workflowsToDeploy = @(
+        "auto_release.yml"
+        "dependabot_approve_and_label.yml"
+    )
+    $workflowsToDeploy | ForEach-Object {
         $src = Join-Path $workflowTemplatesFolder $_
         $dest = Join-Path $workflowsFolder $_
         Copy-Item $src $dest -Force
+    }
+
+    $workflowsToRemove = @(
+        "auto_merge.yml"
+    )
+    $workflowsToRemove | ForEach-Object {
+        $fileToRemove = Join-Path $workflowsFolder $_
+        if (Test-Path $fileToRemove) {
+            Remove-Item $fileToRemove -Force -Verbose:$true
+        }
     }
 
     if ($AddOverwriteSettings) {
@@ -134,6 +148,10 @@ function _repoChanges($OrgName, $RepoName)
 
         ConvertTo-YAML $dependabotConfig | Out-File (New-Item ".github/dependabot.yml" -Force)
     }
+
+    # Enable auto-merge support
+    Write-Host "Enabling auto-merge"
+    & gh repo edit --enable-auto-merge
 
     # placeholder change to mimic existing behaviour whilst being compatible with the
     # change whereby Update-Repo expects a change notification flag
