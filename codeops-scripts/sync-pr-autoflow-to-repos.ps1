@@ -149,6 +149,10 @@ function _repoChanges($OrgName, $RepoName)
         ConvertTo-YAML $dependabotConfig | Out-File (New-Item ".github/dependabot.yml" -Force)
     }
 
+    # Enable auto-merge support
+    Write-Host "Enabling auto-merge"
+    & gh repo edit --enable-auto-merge
+
     # placeholder change to mimic existing behaviour whilst being compatible with the
     # change whereby Update-Repo expects a change notification flag
     return $true
