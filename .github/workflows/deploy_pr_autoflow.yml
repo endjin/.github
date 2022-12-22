@@ -57,7 +57,7 @@ jobs:
                                           -ConfigureDependabotV2
         shell: pwsh
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.ENDJIN_BOT_PRIVATE_KEY }}
-          GITHUB_APP_ID: ${{ secrets.ENDJIN_BOT_APP_ID }}
+          SSH_PRIVATE_KEY: ${{ secrets.ENDJIN_SECOPS_BOT_PRIVATE_KEY }}
+          GITHUB_APP_ID: ${{ secrets.ENDJIN_SECOPS_BOT_APP_ID }}
           GITVERSION_NUGETVER: ${{ steps.run_gitversion.outputs.nuGetVersionV2 }}
           CONFIG_REPO: ${{ github.event.inputs.config_repo }}
