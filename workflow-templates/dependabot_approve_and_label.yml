@@ -71,11 +71,10 @@ jobs:
         if: |
           needs.evaluate_dependabot_pr.outputs.is_auto_merge_candidate == 'True' &&
           (needs.evaluate_dependabot_pr.outputs.semver_increment == 'minor' || needs.evaluate_dependabot_pr.outputs.semver_increment == 'patch')
-        uses: andrewmusgrave/automatic-pull-request-review@0.0.2
-        with:
-          repo-token: '${{ secrets.GITHUB_TOKEN }}'
-          event: APPROVE
-          body: 'Thank you dependabot 🎊'
+        run: |
+          gh pr review "${{ github.event.pull_request.html_url }}" --approve -b "Thank you dependabot 🎊"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: 'Update PR body'
         if: |
           needs.evaluate_dependabot_pr.outputs.is_auto_merge_candidate == 'True' &&
