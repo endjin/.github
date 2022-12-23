@@ -133,7 +133,12 @@ task PreVersion {}
 task PostVersion {}
 task PreBuild {}
 task PostBuild {}
-task PreTest {}
+task PreTest {
+    if (!(Get-Module -ListAvailable powershell-yaml)) {
+        Write-Build White "Installing module: powershell-yaml"
+        Install-Module powershell-yaml -RequiredVersion 0.4.2 -Scope CurrentUser -Repository PSGallery -Force -Verbose
+    }
+}
 task PostTest {}
 task PreTestReport {}
 task PostTestReport {}
