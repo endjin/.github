@@ -1,0 +1,27 @@
+repos:
+  - org: endjin-test-org
+    name:
+    - dependency-playground
+    githubSettings:
+      # demonstrates overriding a default policy setting
+      default_branch_protection: false
+    prAutoflowSettings:
+      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS:
+      - Endjin.*
+      - Corvus.*
+      - dependency-playground-lib
+      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS:
+      - Corvus.*
+      - dependency-playground-lib
+    specflowMetaPackageSettings:
+      enabled: true
+    syncWorkflowTemplates: false
+    # enables the dotnet-outdated functionality
+    nugetDependencyUpdates:
+      enabled: true
+      checkOnly: false
+      solutionsDir: ./Solutions
+      versionLock: Major
+      exclusions: []
+      inclusions:
+      - Microsoft.Extensions

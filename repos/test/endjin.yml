@@ -1,6 +1,8 @@
 repos:
   - org: endjin
-    name: dependency-playground
+    name:
+    - dependency-playground
+    - Endjin.BuildPlayground
     githubSettings:
       # demonstrates overriding a default policy setting
       default_branch_protection: false
