@@ -23,7 +23,7 @@ jobs:
       is_auto_release_candidate: ${{ steps.parse_dependabot_pr_autorelease.outputs.is_interesting_package }}
       semver_increment: ${{ steps.parse_dependabot_pr_automerge.outputs.semver_increment }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Read pr-autoflow configuration
         id: get_pr_autoflow_config
         uses: endjin/pr-autoflow/actions/read-configuration@v1
@@ -71,11 +71,10 @@ jobs:
         if: |
           needs.evaluate_dependabot_pr.outputs.is_auto_merge_candidate == 'True' &&
           (needs.evaluate_dependabot_pr.outputs.semver_increment == 'minor' || needs.evaluate_dependabot_pr.outputs.semver_increment == 'patch')
-        uses: andrewmusgrave/automatic-pull-request-review@0.0.2
-        with:
-          repo-token: '${{ secrets.GITHUB_TOKEN }}'
-          event: APPROVE
-          body: 'Thank you dependabot 🎊'
+        run: |
+          gh pr review "${{ github.event.pull_request.html_url }}" --approve -b "Thank you dependabot 🎊"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: 'Update PR body'
         if: |
           needs.evaluate_dependabot_pr.outputs.is_auto_merge_candidate == 'True' &&
