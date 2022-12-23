@@ -11,6 +11,7 @@ repos:
     - Endjin.Mdp.Bicep
     - Endjin.RecommendedPractices.Bicep
     - Endjin.RecommendedPractices.Build
+    - content-platform
     prAutoflowSettings:
       AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS:
       - Endjin.*
@@ -30,6 +31,17 @@ repos:
       - Microsoft.Extensions.*
       - System.Interactive
       AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: []
+
+  # custom auto-release policy for Endjin.BuildPlayground
+  - org: endjin
+    name:
+    - Endjin.BuildPlayground
+    prAutoflowSettings:
+      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS:
+      - Endjin.*
+      - Corvus.*
+      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS:
+      - Corvus.*
 
   # repos with disabled auto-merge/auto-release behaviours
   - org: endjin
