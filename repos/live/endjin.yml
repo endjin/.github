@@ -12,6 +12,7 @@ repos:
     - Endjin.RecommendedPractices.Bicep
     - Endjin.RecommendedPractices.Build
     - content-platform
+    - pr-autoflow
     prAutoflowSettings:
       AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS:
       - Endjin.*
