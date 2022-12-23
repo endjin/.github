@@ -132,7 +132,7 @@ jobs:
         echo "release_pending_pr_list : ${{ steps.get_release_pending_pr_list.outputs.result }}"
         echo "is_release_pending : ${{ steps.get_release_pending_pr_list.outputs.is_release_pending }}"
 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Read pr-autoflow configuration
       id: get_pr_autoflow_config
       uses: endjin/pr-autoflow/actions/read-configuration@v1
@@ -179,7 +179,7 @@ jobs:
       with:
         dotnet-version: '3.1.x'
 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         # ensure we are creating the release tag on the default branch
         ref: ${{ needs.lookup_default_branch.outputs.branch_name }}
