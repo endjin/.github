@@ -144,7 +144,7 @@ jobs:
       uses: actions/github-script@v6
       with:
         script: |
-          return context.payload.name.login != 'dependabot[bot]' && context.payload.name.login != 'dependjinbot[bot]'
+          return context.payload.pull_request.user.login != 'dependabot[bot]' && context.payload.pull_request.user.login != 'dependjinbot[bot]'
   
     - name: Watch Dependabot PRs
       id: watch_dependabot_prs      
@@ -160,13 +160,13 @@ jobs:
       uses: actions/github-script@v6
       with:
         script: |
-          return (steps.is_human_pr.outputs.result || steps.watch_dependabot_prs.outputs.is_complete == 'True') && steps.get_release_pending_pr_list.outputs.is_release_pending
+          return ( '${{ steps.is_human_pr.outputs.result }}' == 'True' || '${{ steps.watch_dependabot_prs.outputs.is_complete }}' == 'True') && '${{ steps.get_release_pending_pr_list.outputs.is_release_pending }}' == 'True'
 
     - name: Display job outputs
       run: |
         echo "no_open_prs: ${{ steps.watch_dependabot_prs.outputs.is_complete }}"
         echo "pending_release_pr_list: ${{ steps.get_release_pending_pr_list.outputs.result }}"
-        echo "is_human_pr: ${{ steps.is_human_pr.outputs.result }}
+        echo "is_human_pr: ${{ steps.is_human_pr.outputs.result }}"
         echo "ready_to_release : ${{ steps.set_ready_for_release.outputs.result }}"
 
   tag_for_release:
