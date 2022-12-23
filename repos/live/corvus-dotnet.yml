@@ -15,6 +15,7 @@ repos:
     - Corvus.Extensions.CosmosDb
     - Corvus.Extensions.Newtonsoft.Json
     - Corvus.Extensions.System.Text.Json
+    - Corvus.Globbing
     - Corvus.Identity
     - Corvus.JsonSchema
     - Corvus.Leasing
