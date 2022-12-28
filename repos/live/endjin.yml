@@ -13,6 +13,11 @@ repos:
     - Endjin.RecommendedPractices.Build
     - content-platform
     - pr-autoflow
+    - CareerCanvas
+    - CareerCanvas.DefaultDataSetup
+    - CareerCanvas.PowerBI
+    - CareerCanvas.AzOps
+    - CareerCanvas.Marain.Deployment
     prAutoflowSettings:
       AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS:
       - Endjin.*
