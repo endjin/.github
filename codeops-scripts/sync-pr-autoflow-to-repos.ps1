@@ -166,22 +166,23 @@ function _main
     $failedRepos = @()
     
     $repos | ForEach-Object {
-        try {
-            $repo = $_
 
-            # When running in GitHub Actions we will need ensure the GitHub App is
-            # authenticated for the current GitHub Org
-            if ($env:SSH_PRIVATE_KEY -and $env:GITHUB_APP_ID) {
-                Write-Host "Getting access token for organisation: '$($repo.org)'"
-                $accessToken = New-GitHubAppInstallationAccessToken -AppId $env:GITHUB_APP_ID `
-                                                                    -AppPrivateKey $env:SSH_PRIVATE_KEY `
-                                                                    -OrgName $repo.org
-                # gh cli authentcation uses this environment variable
-                $env:GITHUB_TOKEN = $accessToken
-            }
+        $repo = $_
 
-            # 'name' can be a YAML list for repos that share the same config settings
-            foreach ($repoName in $repo.name) {
+        # When running in GitHub Actions we will need ensure the GitHub App is
+        # authenticated for the current GitHub Org
+        if ($env:SSH_PRIVATE_KEY -and $env:GITHUB_APP_ID) {
+            Write-Host "Getting access token for organisation: '$($repo.org)'"
+            $accessToken = New-GitHubAppInstallationAccessToken -AppId $env:GITHUB_APP_ID `
+                                                                -AppPrivateKey $env:SSH_PRIVATE_KEY `
+                                                                -OrgName $repo.org
+            # gh cli authentcation uses this environment variable
+            $env:GITHUB_TOKEN = $accessToken
+        }
+
+        # 'name' can be a YAML list for repos that share the same config settings
+        foreach ($repoName in $repo.name) {
+            try {
                 Write-Host "`nOrg: $($repo.org) - Repo: $($repoName)`n" -f green
 
                 $prLabels = @("no_release")
@@ -220,18 +221,18 @@ function _main
                     }
                 }
             }
-        }
-        catch {
-            # Track the failed repo, before continuing with the rest
-            $failedRepoName = '{0}/{1}' -f $repo.org, $repoName
-            $failedRepos += $failedRepoName
-            $ErrorActionPreference = "Continue"
-            $errorMessage = "Processing the repository '$failedRepoName' reported the following error: $($_.Exception.Message)"
-            Log-Error -Message $errorMessage
-            Write-Error $errorMessage
-            Write-Warning $_.ScriptStackTrace
-            Write-Warning "Processing of remaining repositories will continue"
-            $ErrorActionPreference = "Stop"
+            catch {
+                # Track the failed repo, before continuing with the rest
+                $failedRepoName = '{0}/{1}' -f $repo.org, $repoName
+                $failedRepos += $failedRepoName
+                $ErrorActionPreference = "Continue"
+                $errorMessage = "Processing the repository '$failedRepoName' reported the following error: $($_.Exception.Message)"
+                Log-Error -Message $errorMessage
+                Write-Error $errorMessage
+                Write-Warning $_.ScriptStackTrace
+                Write-Warning "Processing of remaining repositories will continue"
+                $ErrorActionPreference = "Stop"
+            }
         }
     }
 
