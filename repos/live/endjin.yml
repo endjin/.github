@@ -17,6 +17,8 @@ repos:
     - CareerCanvas.DefaultDataSetup
     - CareerCanvas.PowerBI
     - CareerCanvas.Marain.Deployment
+    - Endjin.ApiChange
+    - Endjin.StaticSiteGen
     prAutoflowSettings:
       AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS:
       - Endjin.*
