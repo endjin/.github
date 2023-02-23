@@ -19,6 +19,8 @@ repos:
     - CareerCanvas.Marain.Deployment
     - Endjin.ApiChange
     - Endjin.StaticSiteGen
+    - endjin-synthetic-customers
+    - dotnet-adr
     prAutoflowSettings:
       AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS:
       - Endjin.*
