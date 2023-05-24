@@ -21,11 +21,6 @@ repos:
     - Endjin.StaticSiteGen
     - endjin-synthetic-customers
     - dotnet-adr
-    prAutoflowSettings:
-      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS:
-      - Endjin.*
-      - Corvus.*
-      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: []
     specflowMetaPackageSettings:
       enabled: false
     syncWorkflowTemplates: false
@@ -34,31 +29,16 @@ repos:
   - org: endjin
     name:
     - Endjin.SemVer.DotNetApi
-    prAutoflowSettings:
-      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS:
-      - Endjin.*
-      - Microsoft.Extensions.*
-      - System.Interactive
-      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: []
 
   # custom auto-release policy for Endjin.BuildPlayground
   - org: endjin
     name:
     - Endjin.BuildPlayground
-    prAutoflowSettings:
-      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS:
-      - Endjin.*
-      - Corvus.*
-      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS:
-      - Corvus.*
 
   # repos with disabled auto-merge/auto-release behaviours
   - org: endjin
     name:
     - Z3.Linq
-    prAutoflowSettings:
-      AUTO_MERGE_PACKAGE_WILDCARD_EXPRESSIONS: []
-      AUTO_RELEASE_PACKAGE_WILDCARD_EXPRESSIONS: []
 
   # repos with custom github settings policies
   - org: endjin
